@@ -170,9 +170,10 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
               </span>
               <div className="flex items-center gap-1.5 truncate">
                 <span
-                  className={`px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase border ${nearMeta.bgClass} ${nearMeta.textClass} ${nearMeta.borderClass}`}
+                  className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase border ${nearMeta.bgClass} ${nearMeta.textClass} ${nearMeta.borderClass}`}
                 >
-                  {nearMeta.displayName}
+                  <img src={nearMeta.logoUrl} alt={nearMeta.displayName} className="w-3.5 h-3 object-contain" />
+                  <span>{nearMeta.displayName}</span>
                 </span>
                 <span className="text-xs font-medium text-zinc-200 truncate">
                   {nearestStation.name}
@@ -200,9 +201,10 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
               </span>
               <div className="flex items-center gap-1.5 truncate">
                 <span
-                  className={`px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase border ${cheapMeta.bgClass} ${cheapMeta.textClass} ${cheapMeta.borderClass}`}
+                  className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase border ${cheapMeta.bgClass} ${cheapMeta.textClass} ${cheapMeta.borderClass}`}
                 >
-                  {cheapMeta.displayName}
+                  <img src={cheapMeta.logoUrl} alt={cheapMeta.displayName} className="w-3.5 h-3 object-contain" />
+                  <span>{cheapMeta.displayName}</span>
                 </span>
                 <span className="text-xs font-medium text-zinc-200 truncate">
                   {cheapestStation.name}

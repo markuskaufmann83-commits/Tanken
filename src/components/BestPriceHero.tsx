@@ -60,9 +60,10 @@ export const BestPriceHero: React.FC<BestPriceHeroProps> = ({
         <div className="md:col-span-7 space-y-1.5">
           <div className="flex items-center gap-2">
             <span
-              className={`px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide uppercase border ${brandMeta.bgClass} ${brandMeta.textClass} ${brandMeta.borderClass}`}
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide uppercase border ${brandMeta.bgClass} ${brandMeta.textClass} ${brandMeta.borderClass}`}
             >
-              {brandMeta.displayName}
+              <img src={brandMeta.logoUrl} alt={brandMeta.displayName} className="w-5 h-3.5 object-contain" />
+              <span>{brandMeta.displayName}</span>
             </span>
             <span className="text-xs text-zinc-400 font-medium tabular-nums">
               {formatDistance(station.dist)}

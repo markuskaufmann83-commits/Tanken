@@ -261,24 +261,47 @@
                                     android:textColor="@color/emerald" />
                             </LinearLayout>
 
-                            <TextView
-                                android:id="@+id/tvHeroName"
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Aral Tankstelle"
-                                android:textSize="16sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/on_surface" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="12dp">
 
-                            <TextView
-                                android:id="@+id/tvHeroAddress"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Hauptstraße 42 • 1,2 km entfernt"
-                                android:textSize="12sp"
-                                android:textColor="@color/on_surface_muted"
-                                android:layout_marginTop="2dp"
-                                android:layout_marginBottom="12dp" />
+                                <ImageView
+                                    android:id="@+id/ivHeroBrandLogo"
+                                    android:layout_width="52dp"
+                                    android:layout_height="36dp"
+                                    android:src="@drawable/logo_brand_aral"
+                                    android:scaleType="fitCenter"
+                                    android:layout_marginEnd="12dp"
+                                    android:contentDescription="Markenlogo" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:id="@+id/tvHeroName"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Aral Tankstelle"
+                                        android:textSize="16sp"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/on_surface" />
+
+                                    <TextView
+                                        android:id="@+id/tvHeroAddress"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Hauptstraße 42 • 1,2 km entfernt"
+                                        android:textSize="12sp"
+                                        android:textColor="@color/on_surface_muted"
+                                        android:layout_marginTop="2dp" />
+                                </LinearLayout>
+                            </LinearLayout>
 
                             <LinearLayout
                                 android:layout_width="match_parent"

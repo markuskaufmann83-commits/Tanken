@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" width="100" height="70">
+  <rect width="100" height="70" rx="10" fill="#FFFFFF"/>
+  <path d="M26,35 C26,23 37,16 50,16" fill="none" stroke="#E21836" stroke-width="6" stroke-linecap="round"/>
+  <path d="M50,16 C63,16 74,23 74,35" fill="none" stroke="#F39200" stroke-width="6" stroke-linecap="round"/>
+  <path d="M74,35 C74,47 63,54 50,54" fill="none" stroke="#0055A5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M50,54 C37,54 26,47 26,35" fill="none" stroke="#009640" stroke-width="6" stroke-linecap="round"/>
+  <text x="50" y="65" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#18181B" text-anchor="middle">TOTAL</text>
+</svg>

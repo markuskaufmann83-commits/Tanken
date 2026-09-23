@@ -70,40 +70,41 @@ export interface BrandMeta {
   textClass: string;
   borderClass: string;
   short: string;
+  logoUrl: string;
 }
 
 export function getBrandMeta(brandRaw: string | undefined, nameRaw: string | undefined): BrandMeta {
   const brand = (brandRaw || nameRaw || "").toUpperCase();
 
   if (brand.includes("ARAL")) {
-    return { displayName: "Aral", bgClass: "bg-blue-500/15", textClass: "text-blue-400", borderClass: "border-blue-500/30", short: "ARAL" };
+    return { displayName: "Aral", bgClass: "bg-blue-500/15", textClass: "text-blue-400", borderClass: "border-blue-500/30", short: "ARAL", logoUrl: "/brands/aral.svg" };
   }
   if (brand.includes("SHELL")) {
-    return { displayName: "Shell", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "SHELL" };
+    return { displayName: "Shell", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "SHELL", logoUrl: "/brands/shell.svg" };
   }
   if (brand.includes("TOTAL")) {
-    return { displayName: "TotalEnergies", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "TOTAL" };
+    return { displayName: "TotalEnergies", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "TOTAL", logoUrl: "/brands/total.svg" };
   }
   if (brand.includes("JET")) {
-    return { displayName: "JET", bgClass: "bg-yellow-500/15", textClass: "text-yellow-400", borderClass: "border-yellow-500/30", short: "JET" };
+    return { displayName: "JET", bgClass: "bg-yellow-500/15", textClass: "text-yellow-400", borderClass: "border-yellow-500/30", short: "JET", logoUrl: "/brands/jet.svg" };
   }
   if (brand.includes("HEM")) {
-    return { displayName: "HEM", bgClass: "bg-emerald-500/15", textClass: "text-emerald-400", borderClass: "border-emerald-500/30", short: "HEM" };
+    return { displayName: "HEM", bgClass: "bg-emerald-500/15", textClass: "text-emerald-400", borderClass: "border-emerald-500/30", short: "HEM", logoUrl: "/brands/hem.svg" };
   }
   if (brand.includes("ESSO")) {
-    return { displayName: "Esso", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "ESSO" };
+    return { displayName: "Esso", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "ESSO", logoUrl: "/brands/esso.svg" };
   }
   if (brand.includes("AVIA")) {
-    return { displayName: "AVIA", bgClass: "bg-rose-500/15", textClass: "text-rose-400", borderClass: "border-rose-500/30", short: "AVIA" };
+    return { displayName: "AVIA", bgClass: "bg-rose-500/15", textClass: "text-rose-400", borderClass: "border-rose-500/30", short: "AVIA", logoUrl: "/brands/avia.svg" };
   }
   if (brand.includes("STAR")) {
-    return { displayName: "star", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "STAR" };
+    return { displayName: "star", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "STAR", logoUrl: "/brands/star.svg" };
   }
   if (brand.includes("ENI") || brand.includes("AGIP")) {
-    return { displayName: "Eni / Agip", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "ENI" };
+    return { displayName: "Eni / Agip", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "ENI", logoUrl: "/brands/generic.svg" };
   }
   if (brand.includes("OMV")) {
-    return { displayName: "OMV", bgClass: "bg-cyan-500/15", textClass: "text-cyan-400", borderClass: "border-cyan-500/30", short: "OMV" };
+    return { displayName: "OMV", bgClass: "bg-cyan-500/15", textClass: "text-cyan-400", borderClass: "border-cyan-500/30", short: "OMV", logoUrl: "/brands/generic.svg" };
   }
 
   // Fallback for independent / other stations
@@ -114,6 +115,7 @@ export function getBrandMeta(brandRaw: string | undefined, nameRaw: string | und
     textClass: "text-zinc-300",
     borderClass: "border-zinc-700/60",
     short: display.substring(0, 4).toUpperCase(),
+    logoUrl: "/brands/generic.svg",
   };
 }
 

@@ -17,33 +17,54 @@
         android:padding="14dp"
         android:gravity="center_vertical">
 
-        <!-- Left info -->
+        <!-- Brand Logo Tile -->
+        <ImageView
+            android:id="@+id/ivBrandLogo"
+            android:layout_width="44dp"
+            android:layout_height="32dp"
+            android:src="@drawable/logo_brand_aral"
+            android:scaleType="fitCenter"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="Markenlogo" />
+
+        <!-- Center info -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <!-- Meta row: Brand + Distance + Status -->
+            <!-- Station Name -->
+            <TextView
+                android:id="@+id/tvName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Aral Tankstelle"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/on_surface"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <!-- Address -->
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hauptstraße 42, 10115 Berlin"
+                android:textSize="11sp"
+                android:textColor="@color/on_surface_muted"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:layout_marginTop="1dp" />
+
+            <!-- Meta row: Distance + Status -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="4dp">
-
-                <TextView
-                    android:id="@+id/tvBrand"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ARAL"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/emerald"
-                    android:background="@drawable/badge_background"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
-                    android:layout_marginEnd="6dp" />
+                android:layout_marginTop="3dp">
 
                 <TextView
                     android:id="@+id/tvDistance"
@@ -62,30 +83,6 @@
                     android:textSize="11sp"
                     android:textColor="@color/emerald" />
             </LinearLayout>
-
-            <!-- Station Name -->
-            <TextView
-                android:id="@+id/tvName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Aral Tankstelle"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:textColor="@color/on_surface"
-                android:singleLine="true"
-                android:ellipsize="end" />
-
-            <!-- Address -->
-            <TextView
-                android:id="@+id/tvAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Hauptstraße 42, 10115 Berlin"
-                android:textSize="12sp"
-                android:textColor="@color/on_surface_muted"
-                android:singleLine="true"
-                android:ellipsize="end"
-                android:layout_marginTop="2dp" />
 
         </LinearLayout>
 
