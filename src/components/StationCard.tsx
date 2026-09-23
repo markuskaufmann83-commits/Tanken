@@ -39,79 +39,73 @@ export const StationCard: React.FC<StationCardProps> = ({
 
   return (
     <div
-      className={`group relative bg-slate-900/70 hover:bg-slate-900 border rounded-2xl p-4 transition-all duration-200 shadow-md hover:shadow-xl ${
+      className={`group relative border rounded-xl p-3.5 transition-all duration-150 shadow-sm ${
         isCheapest
-          ? "border-emerald-500/40 bg-slate-900/90"
-          : "border-slate-800/80 hover:border-slate-700"
+          ? "bg-zinc-900/90 border-zinc-700 shadow-md"
+          : "bg-zinc-900/40 hover:bg-zinc-900/80 border-zinc-800/80 hover:border-zinc-700"
       }`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Left Side: Brand, Status, Name, Address */}
         <div
           onClick={() => onOpenDetails(station)}
-          className="flex-1 cursor-pointer space-y-1.5 min-w-0"
+          className="flex-1 cursor-pointer space-y-1 min-w-0"
         >
           {/* Header Row: Brand badge, distance, status */}
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wide ${brandMeta.bgClass} ${brandMeta.textClass}`}
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wide border ${brandMeta.bgClass} ${brandMeta.textClass} ${brandMeta.borderClass}`}
             >
               {brandMeta.displayName}
             </span>
 
-            <span className="text-xs text-slate-400 font-medium">
+            <span className="text-xs text-zinc-400 font-medium tabular-nums">
               {formatDistance(station.dist)}
             </span>
 
-            <span
-              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
-                station.isOpen
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                  : "bg-rose-500/10 text-rose-400 border-rose-500/20"
-              }`}
-            >
+            <span className="inline-flex items-center gap-1.5 text-[11px] text-zinc-400">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  station.isOpen ? "bg-emerald-400" : "bg-rose-400"
+                  station.isOpen ? "bg-emerald-400" : "bg-zinc-600"
                 }`}
               />
               {station.isOpen ? "Geöffnet" : "Geschlossen"}
             </span>
 
             {isCheapest && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-zinc-800 text-zinc-200 border border-zinc-700">
                 Günstigste
               </span>
             )}
           </div>
 
           {/* Station Name */}
-          <h4 className="text-base font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors truncate">
+          <h4 className="text-sm sm:text-base font-medium text-zinc-100 group-hover:text-white transition-colors truncate">
             {station.name}
           </h4>
 
           {/* Address */}
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 truncate">
-            <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <div className="flex items-center gap-1.5 text-xs text-zinc-400 truncate">
+            <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span className="truncate">
               {station.street} {station.houseNumber || ""}, {station.postCode || ""} {station.place}
             </span>
           </div>
 
           {/* Secondary Prices */}
-          <div className="flex items-center gap-2 pt-1 flex-wrap">
+          <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
             {secondaryPrices.map((sec) => {
               const secFormatted = formatFuelPrice(sec.price);
               return (
                 <div
                   key={sec.type}
-                  className="px-2 py-0.5 rounded bg-slate-950/60 border border-slate-800 text-[10px] flex items-center gap-1 text-slate-400"
+                  className="px-1.5 py-0.5 rounded bg-zinc-950 border border-zinc-800 text-[10px] flex items-center gap-1 text-zinc-400 tabular-nums"
                 >
-                  <span>{sec.label}:</span>
+                  <span className="text-zinc-400">{sec.label}:</span>
                   {secFormatted ? (
-                    <span className="font-semibold text-slate-300">
+                    <span className="font-medium text-zinc-300">
                       {secFormatted.main}
-                      <sup className="text-[8px] -top-0.5 font-bold">{secFormatted.sup}</sup> €
+                      <sup className="text-[8px] -top-0.5">{secFormatted.sup}</sup> €
                     </span>
                   ) : (
                     <span>—</span>
@@ -123,24 +117,24 @@ export const StationCard: React.FC<StationCardProps> = ({
         </div>
 
         {/* Right Side: Primary Price & Navigation */}
-        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/80 shrink-0">
+        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-800/80 shrink-0">
           <div
             onClick={() => onOpenDetails(station)}
             className="cursor-pointer text-left sm:text-right"
           >
-            <span className="text-[10px] uppercase font-semibold text-slate-400 block">
+            <span className="text-[10px] text-zinc-400 block font-medium">
               {fuelType.toUpperCase()}
             </span>
             {formattedPrice ? (
-              <div className="text-2xl font-black text-slate-100 tracking-tight flex items-baseline sm:justify-end gap-0.5">
-                <span className={isCheapest ? "text-emerald-400" : ""}>{formattedPrice.main}</span>
-                <sup className={`text-sm font-bold -top-1.5 ${isCheapest ? "text-emerald-400" : "text-slate-300"}`}>
+              <div className="text-2xl font-semibold text-zinc-100 tracking-tight flex items-baseline sm:justify-end gap-0.5 tabular-nums">
+                <span className={isCheapest ? "text-emerald-400 font-bold" : "font-semibold"}>{formattedPrice.main}</span>
+                <sup className={`text-sm font-bold -top-1 ${isCheapest ? "text-emerald-400" : "text-zinc-400"}`}>
                   {formattedPrice.sup}
                 </sup>
-                <span className="text-sm font-semibold text-slate-400 ml-0.5">€</span>
+                <span className="text-sm font-normal text-zinc-400 ml-0.5">€</span>
               </div>
             ) : (
-              <span className="text-sm text-slate-400 font-bold">K.A.</span>
+              <span className="text-sm text-zinc-400 font-medium">K.A.</span>
             )}
           </div>
 
@@ -150,16 +144,16 @@ export const StationCard: React.FC<StationCardProps> = ({
               href={navUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/60 text-xs font-medium transition-colors"
               title="Navigation in Google Maps öffnen"
             >
-              <Navigation className="w-3.5 h-3.5" />
+              <Navigation className="w-3.5 h-3.5 text-zinc-400" />
               <span>Route</span>
             </a>
 
             <button
               onClick={() => onOpenDetails(station)}
-              className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-all"
+              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 border border-zinc-800 transition-colors"
               title="Öffnungszeiten und Details anzeigen"
             >
               <ChevronRight className="w-4 h-4" />

@@ -87,14 +87,14 @@ export const LocationBar: React.FC<LocationBarProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-xl backdrop-blur-sm space-y-3.5">
+    <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-3.5 space-y-3 shadow-sm">
       {/* Top row: Current location + Geolocation button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2 overflow-hidden">
-          <MapPin className="w-5 h-5 text-emerald-400 shrink-0" />
+          <MapPin className="w-4 h-4 text-zinc-400 shrink-0" />
           <div className="truncate">
-            <span className="text-xs text-slate-400 block">Aktueller Suchort:</span>
-            <span className="text-sm font-semibold text-slate-100 truncate block">
+            <span className="text-[11px] text-zinc-400 block font-normal">Aktueller Suchort</span>
+            <span className="text-sm font-medium text-zinc-100 truncate block">
               {currentLocationName}
             </span>
           </div>
@@ -103,14 +103,14 @@ export const LocationBar: React.FC<LocationBarProps> = ({
         <button
           onClick={onRequestGeolocation}
           disabled={isLocating}
-          className="flex items-center justify-center gap-2 px-3.5 py-2 text-xs font-medium rounded-xl bg-emerald-600/15 hover:bg-emerald-600/25 active:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 transition-all shrink-0"
+          className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg bg-zinc-800 hover:bg-zinc-700/80 active:bg-zinc-700 text-zinc-200 border border-zinc-700/60 transition-all shrink-0 self-start sm:self-auto"
         >
           {isLocating ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-400" />
           ) : (
-            <Navigation className="w-3.5 h-3.5" />
+            <Navigation className="w-3.5 h-3.5 text-zinc-400" />
           )}
-          <span>{isLocating ? "Ortung läuft..." : "Mein Standort"}</span>
+          <span>{isLocating ? "Ortung..." : "Mein Standort"}</span>
         </button>
       </div>
 
@@ -118,28 +118,28 @@ export const LocationBar: React.FC<LocationBarProps> = ({
       <div className="relative" ref={dropdownRef}>
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Ort, Postleitzahl oder Adresse in Deutschland suchen..."
-              className="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl pl-9 pr-9 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
+              placeholder="Ort, PLZ oder Adresse in Deutschland suchen..."
+              className="w-full bg-zinc-950/80 border border-zinc-800 rounded-lg pl-9 pr-8 py-2 text-xs text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
           <button
             type="submit"
             disabled={isSearching || !searchQuery.trim()}
-            className="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-100 border border-slate-700 transition-all disabled:opacity-50 flex items-center gap-1.5"
+            className="px-3.5 py-2 text-xs font-medium rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-700 transition-all disabled:opacity-40 flex items-center gap-1.5 shrink-0"
           >
             {isSearching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Suchen"}
           </button>
@@ -147,19 +147,19 @@ export const LocationBar: React.FC<LocationBarProps> = ({
 
         {/* Search Results Dropdown */}
         {showDropdown && suggestions.length > 0 && (
-          <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-30 max-h-60 overflow-y-auto divide-y divide-slate-800">
+          <div className="absolute left-0 right-0 top-full mt-1.5 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-30 max-h-60 overflow-y-auto divide-y divide-zinc-800">
             {suggestions.map((item, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSelectSuggestion(item)}
-                className="w-full text-left px-3.5 py-2.5 hover:bg-slate-800/80 transition-colors flex items-start gap-2.5"
+                className="w-full text-left px-3 py-2.5 hover:bg-zinc-800/60 transition-colors flex items-start gap-2.5"
               >
-                <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0 mt-0.5" />
                 <div className="text-xs">
-                  <div className="font-medium text-slate-100">
+                  <div className="font-medium text-zinc-100">
                     {item.city} {item.postcode ? `(${item.postcode})` : ""}
                   </div>
-                  <div className="text-slate-400 line-clamp-1">{item.displayName}</div>
+                  <div className="text-zinc-400 text-[11px] line-clamp-1">{item.displayName}</div>
                 </div>
               </button>
             ))}
@@ -167,50 +167,53 @@ export const LocationBar: React.FC<LocationBarProps> = ({
         )}
 
         {showDropdown && !isSearching && searchQuery && suggestions.length === 0 && (
-          <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-700 rounded-xl p-3 shadow-2xl z-30 text-xs text-slate-400 text-center">
+          <div className="absolute left-0 right-0 top-full mt-1.5 bg-zinc-900 border border-zinc-800 rounded-xl p-3 shadow-xl z-30 text-xs text-zinc-400 text-center">
             Keine Orte gefunden für &quot;{searchQuery}&quot;.
           </div>
         )}
       </div>
 
-      {/* Quick city presets */}
-      <div className="flex items-center gap-1.5 flex-wrap text-xs">
-        <span className="text-slate-400 font-medium mr-1 text-[11px]">Schnellauswahl:</span>
-        {POPULAR_CITIES.map((c) => {
-          const isActive = currentLocationName.includes(c.name);
-          return (
-            <button
-              key={c.name}
-              onClick={() => onSelectCoords(c.lat, c.lng, c.name)}
-              className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-medium ${
-                isActive
-                  ? "bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40"
-                  : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60"
-              }`}
-            >
-              {c.name}
-            </button>
-          );
-        })}
-      </div>
+      {/* Quick city presets + Radius in a clean row */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2 border-t border-zinc-800/70">
+        {/* Quick city presets */}
+        <div className="flex items-center gap-1.5 flex-wrap text-xs">
+          <span className="text-zinc-400 text-[11px]">Schnellwahl:</span>
+          {POPULAR_CITIES.map((c) => {
+            const isActive = currentLocationName.includes(c.name);
+            return (
+              <button
+                key={c.name}
+                onClick={() => onSelectCoords(c.lat, c.lng, c.name)}
+                className={`px-2 py-0.5 rounded-md transition-all text-[11px] font-medium ${
+                  isActive
+                    ? "bg-zinc-100 text-zinc-900 font-semibold shadow-sm"
+                    : "bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800/80"
+                }`}
+              >
+                {c.name}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Radius Selection */}
-      <div className="flex items-center justify-between pt-2 border-t border-slate-800/80 flex-wrap gap-2">
-        <span className="text-xs text-slate-400 font-medium">Suchradius:</span>
-        <div className="flex items-center gap-1.5">
-          {RADII.map((r) => (
-            <button
-              key={r}
-              onClick={() => onRadiusChange(r)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                selectedRadius === r
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-950/40"
-                  : "bg-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-700"
-              }`}
-            >
-              {r} km
-            </button>
-          ))}
+        {/* Radius Selection as clean segmented control */}
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-zinc-400">Radius:</span>
+          <div className="inline-flex bg-zinc-950 border border-zinc-800 p-0.5 rounded-lg">
+            {RADII.map((r) => (
+              <button
+                key={r}
+                onClick={() => onRadiusChange(r)}
+                className={`px-2 py-0.5 rounded-md text-[11px] font-medium transition-all ${
+                  selectedRadius === r
+                    ? "bg-zinc-800 text-zinc-100 font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                {r} km
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

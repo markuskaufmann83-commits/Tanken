@@ -76,43 +76,43 @@ export function getBrandMeta(brandRaw: string | undefined, nameRaw: string | und
   const brand = (brandRaw || nameRaw || "").toUpperCase();
 
   if (brand.includes("ARAL")) {
-    return { displayName: "Aral", bgClass: "bg-blue-600", textClass: "text-white", borderClass: "border-blue-500", short: "ARAL" };
+    return { displayName: "Aral", bgClass: "bg-blue-500/15", textClass: "text-blue-400", borderClass: "border-blue-500/30", short: "ARAL" };
   }
   if (brand.includes("SHELL")) {
-    return { displayName: "Shell", bgClass: "bg-amber-400", textClass: "text-red-700", borderClass: "border-amber-400", short: "SHELL" };
+    return { displayName: "Shell", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "SHELL" };
   }
   if (brand.includes("TOTAL")) {
-    return { displayName: "TotalEnergies", bgClass: "bg-red-600", textClass: "text-white", borderClass: "border-red-500", short: "TOTAL" };
+    return { displayName: "TotalEnergies", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "TOTAL" };
   }
   if (brand.includes("JET")) {
-    return { displayName: "JET", bgClass: "bg-yellow-400", textClass: "text-blue-900", borderClass: "border-yellow-400", short: "JET" };
+    return { displayName: "JET", bgClass: "bg-yellow-500/15", textClass: "text-yellow-400", borderClass: "border-yellow-500/30", short: "JET" };
   }
   if (brand.includes("HEM")) {
-    return { displayName: "HEM", bgClass: "bg-emerald-600", textClass: "text-white", borderClass: "border-emerald-500", short: "HEM" };
+    return { displayName: "HEM", bgClass: "bg-emerald-500/15", textClass: "text-emerald-400", borderClass: "border-emerald-500/30", short: "HEM" };
   }
   if (brand.includes("ESSO")) {
-    return { displayName: "Esso", bgClass: "bg-red-700", textClass: "text-white", borderClass: "border-red-600", short: "ESSO" };
+    return { displayName: "Esso", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "ESSO" };
   }
   if (brand.includes("AVIA")) {
-    return { displayName: "AVIA", bgClass: "bg-rose-600", textClass: "text-white", borderClass: "border-rose-500", short: "AVIA" };
+    return { displayName: "AVIA", bgClass: "bg-rose-500/15", textClass: "text-rose-400", borderClass: "border-rose-500/30", short: "AVIA" };
   }
   if (brand.includes("STAR")) {
-    return { displayName: "star", bgClass: "bg-red-500", textClass: "text-white", borderClass: "border-red-400", short: "STAR" };
+    return { displayName: "star", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "STAR" };
   }
   if (brand.includes("ENI") || brand.includes("AGIP")) {
-    return { displayName: "Eni / Agip", bgClass: "bg-yellow-500", textClass: "text-black", borderClass: "border-yellow-400", short: "ENI" };
+    return { displayName: "Eni / Agip", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "ENI" };
   }
   if (brand.includes("OMV")) {
-    return { displayName: "OMV", bgClass: "bg-cyan-600", textClass: "text-white", borderClass: "border-cyan-500", short: "OMV" };
+    return { displayName: "OMV", bgClass: "bg-cyan-500/15", textClass: "text-cyan-400", borderClass: "border-cyan-500/30", short: "OMV" };
   }
 
   // Fallback for independent / other stations
   const display = brandRaw?.trim() || nameRaw?.trim() || "Freie Tankstelle";
   return {
     displayName: display.length > 18 ? display.substring(0, 16) + "…" : display,
-    bgClass: "bg-slate-700",
-    textClass: "text-slate-100",
-    borderClass: "border-slate-600",
+    bgClass: "bg-zinc-800/80",
+    textClass: "text-zinc-300",
+    borderClass: "border-zinc-700/60",
     short: display.substring(0, 4).toUpperCase(),
   };
 }

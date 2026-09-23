@@ -3,33 +3,41 @@
 @tailwind utilities;
 
 :root {
-  --background: #090d16;
-  --foreground: #f8fafc;
+  --background: #09090b; /* zinc-950 */
+  --foreground: #f4f4f5; /* zinc-100 */
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   min-height: 100vh;
 }
 
+/* Tabular numbers helper */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #09090b;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #27272a; /* zinc-800 */
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #3f3f46; /* zinc-700 */
 }
+

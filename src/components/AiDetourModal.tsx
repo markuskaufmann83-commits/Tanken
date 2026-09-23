@@ -101,32 +101,32 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
   const verdict = getVerdict();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
       <div
-        className="relative w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]"
+        className="relative w-full max-w-lg bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[92vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center text-slate-950 shadow-md">
-              <Sparkles className="w-4 h-4 fill-current" />
+        <div className="px-5 py-3.5 border-b border-zinc-800 flex items-center justify-between bg-zinc-900/90">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700/80 flex items-center justify-center text-zinc-100">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-1.5">
+              <h3 className="text-sm font-semibold text-zinc-100">
                 KI-Umweg-Berater
               </h3>
-              <p className="text-[11px] text-slate-400">
-                Smarte Kosten-Nutzen-Analyse für deine Fahrt
+              <p className="text-[11px] text-zinc-400">
+                Kosten-Nutzen-Rechnung für Mehrkilometer
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+            className="p-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -134,115 +134,115 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
         <div className="p-5 overflow-y-auto space-y-4">
           {/* Main Verdict Card */}
           <div
-            className={`p-4 rounded-2xl border transition-all ${
+            className={`p-4 rounded-xl border transition-all ${
               verdict.type === "success"
-                ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-200"
+                ? "bg-emerald-950/20 border-emerald-500/30 text-emerald-300"
                 : verdict.type === "neutral"
-                ? "bg-amber-950/40 border-amber-500/40 text-amber-200"
-                : "bg-rose-950/40 border-rose-500/40 text-rose-200"
+                ? "bg-zinc-950 border-zinc-800 text-zinc-300"
+                : "bg-rose-950/20 border-rose-500/30 text-rose-300"
             }`}
           >
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-1.5">
               {verdict.type === "success" ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               ) : verdict.type === "neutral" ? (
-                <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-zinc-400 shrink-0" />
               ) : (
-                <XCircle className="w-5 h-5 text-rose-400 shrink-0" />
+                <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
               )}
-              <span className="text-xs font-bold uppercase tracking-wider">
+              <span className="text-[11px] font-semibold uppercase tracking-wider">
                 {verdict.badge}
               </span>
             </div>
 
-            <h4 className="text-xl font-black text-white tracking-tight mb-1.5">
+            <h4 className="text-lg font-bold text-zinc-100 tracking-tight mb-1 tabular-nums">
               {verdict.title}
             </h4>
-            <p className="text-xs opacity-90 leading-relaxed">{verdict.description}</p>
+            <p className="text-xs text-zinc-300 leading-relaxed">{verdict.description}</p>
           </div>
 
           {/* Direct Station Comparison */}
           <div className="grid grid-cols-2 gap-2.5">
             {/* Nearest Station */}
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-3 space-y-2">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 space-y-1.5">
+              <span className="text-[10px] uppercase font-medium text-zinc-400 tracking-wider block">
                 Nächste Station
               </span>
               <div className="flex items-center gap-1.5 truncate">
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${nearMeta.bgClass} ${nearMeta.textClass}`}
+                  className={`px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase border ${nearMeta.bgClass} ${nearMeta.textClass} ${nearMeta.borderClass}`}
                 >
                   {nearMeta.displayName}
                 </span>
-                <span className="text-xs font-semibold text-slate-200 truncate">
+                <span className="text-xs font-medium text-zinc-200 truncate">
                   {nearestStation.name}
                 </span>
               </div>
-              <div className="text-xs text-slate-400">
-                Entfernung: <span className="text-slate-200 font-medium">{formatDistance(dNear)}</span>
+              <div className="text-xs text-zinc-400 tabular-nums">
+                Entfernung: <span className="text-zinc-200 font-medium">{formatDistance(dNear)}</span>
               </div>
-              <div className="text-lg font-bold text-white flex items-baseline gap-0.5">
+              <div className="text-lg font-semibold text-zinc-100 flex items-baseline gap-0.5 tabular-nums">
                 <span>{nearPriceFormatted?.main ?? "—"}</span>
-                <sup className="text-xs font-bold text-slate-300">
+                <sup className="text-xs font-medium text-zinc-400">
                   {nearPriceFormatted?.sup ?? ""}
                 </sup>
-                <span className="text-xs text-slate-400 ml-0.5">€</span>
+                <span className="text-xs text-zinc-400 ml-0.5">€</span>
               </div>
             </div>
 
             {/* Cheapest Station */}
-            <div className="bg-slate-950/60 border border-emerald-500/30 rounded-2xl p-3 space-y-2 relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-emerald-500/20 text-emerald-400 text-[9px] font-bold px-2 py-0.5 rounded-bl-lg">
+            <div className="bg-zinc-950 border border-zinc-700/80 rounded-xl p-3 space-y-1.5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-zinc-800 text-zinc-300 text-[9px] font-medium px-2 py-0.5 rounded-bl-md">
                 Günstigste
               </div>
-              <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">
+              <span className="text-[10px] uppercase font-medium text-emerald-400 tracking-wider block">
                 Bester Preis
               </span>
               <div className="flex items-center gap-1.5 truncate">
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${cheapMeta.bgClass} ${cheapMeta.textClass}`}
+                  className={`px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase border ${cheapMeta.bgClass} ${cheapMeta.textClass} ${cheapMeta.borderClass}`}
                 >
                   {cheapMeta.displayName}
                 </span>
-                <span className="text-xs font-semibold text-slate-200 truncate">
+                <span className="text-xs font-medium text-zinc-200 truncate">
                   {cheapestStation.name}
                 </span>
               </div>
-              <div className="text-xs text-slate-400">
+              <div className="text-xs text-zinc-400 tabular-nums">
                 Entfernung: <span className="text-emerald-400 font-medium">{formatDistance(dCheap)}</span>
               </div>
-              <div className="text-lg font-bold text-emerald-400 flex items-baseline gap-0.5">
+              <div className="text-lg font-semibold text-emerald-400 flex items-baseline gap-0.5 tabular-nums">
                 <span>{cheapPriceFormatted?.main ?? "—"}</span>
-                <sup className="text-xs font-bold text-emerald-300">
+                <sup className="text-xs font-medium text-emerald-400/80">
                   {cheapPriceFormatted?.sup ?? ""}
                 </sup>
-                <span className="text-xs text-slate-400 ml-0.5">€</span>
+                <span className="text-xs text-zinc-400 ml-0.5">€</span>
               </div>
             </div>
           </div>
 
           {/* Interactive Parameters: Tank volume & Consumption */}
-          <div className="bg-slate-950/40 border border-slate-800 rounded-2xl p-3.5 space-y-3">
-            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-              <Car className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Deine Fahrzeugdaten anpassen:</span>
+          <div className="bg-zinc-950/60 border border-zinc-800 rounded-xl p-3.5 space-y-3">
+            <span className="text-xs font-medium text-zinc-300 flex items-center gap-1.5">
+              <Car className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Fahrzeugdaten anpassen:</span>
             </span>
 
             {/* Tank volume */}
             <div className="space-y-1.5">
-              <div className="flex justify-between text-xs text-slate-300">
-                <span className="text-slate-400">Tankmenge:</span>
-                <span className="font-semibold text-white">{tankLiters} Liter</span>
+              <div className="flex justify-between text-xs text-zinc-300">
+                <span className="text-zinc-400">Tankmenge:</span>
+                <span className="font-medium text-zinc-100 tabular-nums">{tankLiters} Liter</span>
               </div>
               <div className="flex gap-1.5">
                 {[30, 45, 55, 70].map((l) => (
                   <button
                     key={l}
                     onClick={() => setTankLiters(l)}
-                    className={`flex-1 py-1 text-xs rounded-lg font-medium transition-all ${
+                    className={`flex-1 py-1 text-xs rounded-lg font-medium transition-all tabular-nums ${
                       tankLiters === l
-                        ? "bg-emerald-600 text-white font-bold shadow-sm"
-                        : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        ? "bg-zinc-100 text-zinc-950 font-semibold shadow-sm"
+                        : "bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
                     }`}
                   >
                     {l} L
@@ -253,9 +253,9 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
 
             {/* Consumption */}
             <div className="space-y-1.5 pt-1">
-              <div className="flex justify-between text-xs text-slate-300">
-                <span className="text-slate-400">Durchschnittsverbrauch:</span>
-                <span className="font-semibold text-white">{consumption.toFixed(1)} l / 100 km</span>
+              <div className="flex justify-between text-xs text-zinc-300">
+                <span className="text-zinc-400">Durchschnittsverbrauch:</span>
+                <span className="font-medium text-zinc-100 tabular-nums">{consumption.toFixed(1)} l / 100 km</span>
               </div>
               <div className="flex gap-1.5">
                 {[
@@ -268,8 +268,8 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
                     onClick={() => setConsumption(c.val)}
                     className={`flex-1 py-1 text-xs rounded-lg font-medium transition-all ${
                       consumption === c.val
-                        ? "bg-emerald-600 text-white font-bold shadow-sm"
-                        : "bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        ? "bg-zinc-100 text-zinc-950 font-semibold shadow-sm"
+                        : "bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800"
                     }`}
                   >
                     {c.label} ({c.val}l)
@@ -281,26 +281,26 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
 
           {/* Calculation Breakdown */}
           {!isSameStation && (
-            <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-3 text-xs space-y-1.5 divide-y divide-slate-800/60 text-slate-300">
-              <div className="flex justify-between pb-1.5">
-                <span className="text-slate-400">Mehrstrecke (Hin & Zurück):</span>
-                <span className="font-semibold text-slate-100">
+            <div className="bg-zinc-950/80 border border-zinc-800 rounded-xl p-3 text-xs space-y-1.5 divide-y divide-zinc-800/80 text-zinc-300">
+              <div className="flex justify-between pb-1.5 tabular-nums">
+                <span className="text-zinc-400">Mehrstrecke (Hin & Zurück):</span>
+                <span className="font-medium text-zinc-100">
                   +{extraRoundTripKm.toFixed(1).replace(".", ",")} km (ca. {extraTimeMinutes} Min)
                 </span>
               </div>
-              <div className="flex justify-between py-1.5">
-                <span className="text-slate-400">Preisvorteil Zapfsäule ({tankLiters} L):</span>
-                <span className="font-semibold text-emerald-400">
+              <div className="flex justify-between py-1.5 tabular-nums">
+                <span className="text-zinc-400">Preisvorteil Zapfsäule ({tankLiters} L):</span>
+                <span className="font-medium text-emerald-400">
                   +{grossSavings.toFixed(2).replace(".", ",")} €
                 </span>
               </div>
-              <div className="flex justify-between py-1.5">
-                <span className="text-slate-400">Spritkosten für Umweg:</span>
-                <span className="font-semibold text-rose-400">
+              <div className="flex justify-between py-1.5 tabular-nums">
+                <span className="text-zinc-400">Spritkosten für Umweg:</span>
+                <span className="font-medium text-rose-400">
                   -{detourCost.toFixed(2).replace(".", ",")} €
                 </span>
               </div>
-              <div className="flex justify-between pt-1.5 font-bold text-sm">
+              <div className="flex justify-between pt-1.5 font-semibold text-sm tabular-nums">
                 <span>Echter Reingewinn:</span>
                 <span className={netSavings >= 0 ? "text-emerald-400" : "text-rose-400"}>
                   {netSavings >= 0 ? "+" : ""}
@@ -312,10 +312,10 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
         </div>
 
         {/* Footer Navigation */}
-        <div className="px-5 py-3 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between gap-3">
+        <div className="px-5 py-3 border-t border-zinc-800 bg-zinc-900/90 flex items-center justify-between gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
+            className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition-colors"
           >
             Schließen
           </button>
@@ -328,10 +328,10 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-md transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs shadow-sm transition-colors"
           >
             <Navigation className="w-3.5 h-3.5 fill-current" />
-            <span>Zur günstigsten navigieren</span>
+            <span>Navigation starten</span>
           </a>
         </div>
       </div>

@@ -9,7 +9,7 @@ import {
   getBrandMeta,
   getNavigationUrl,
 } from "@/lib/fuelUtils";
-import { Navigation, Trophy, ChevronRight, Fuel, Sparkles, MapPin } from "lucide-react";
+import { Navigation, ChevronRight, Sparkles, MapPin } from "lucide-react";
 
 interface BestPriceHeroProps {
   station: Station | null;
@@ -41,72 +41,65 @@ export const BestPriceHero: React.FC<BestPriceHeroProps> = ({
   const navUrl = getNavigationUrl(station.lat, station.lng, `${station.brand || station.name}, ${station.place}`);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950/70 via-slate-900 to-slate-950 border-2 border-emerald-500/40 p-4 sm:p-5 shadow-2xl shadow-emerald-950/50">
-      {/* Glow decorative effects */}
-      <div className="absolute -top-12 -right-12 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-12 -left-12 w-44 h-44 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Top Banner Tag */}
+    <div className="relative rounded-2xl bg-zinc-900/80 border border-zinc-800 p-4 sm:p-5 shadow-sm">
+      {/* Top Tag Row */}
       <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold tracking-wide">
-          <Trophy className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span>GÜNSTIGSTE TANKSTELLE</span>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-zinc-800 border border-zinc-700/60 text-zinc-300 text-xs font-medium">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span>Bester Preis in der Umgebung</span>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Geöffnet
-          </span>
-        </div>
+        <span className="text-[11px] font-medium text-emerald-400">
+          Geöffnet
+        </span>
       </div>
 
-      {/* Station Name & Main Price */}
+      {/* Main Content */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
         {/* Left Side: Brand, Name & Address */}
-        <div className="md:col-span-7 space-y-2">
-          <div className="flex items-center gap-2.5">
+        <div className="md:col-span-7 space-y-1.5">
+          <div className="flex items-center gap-2">
             <span
-              className={`px-2.5 py-0.5 rounded-lg text-xs font-black tracking-wider uppercase ${brandMeta.bgClass} ${brandMeta.textClass} shadow-sm`}
+              className={`px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide uppercase border ${brandMeta.bgClass} ${brandMeta.textClass} ${brandMeta.borderClass}`}
             >
               {brandMeta.displayName}
             </span>
-            <span className="text-xs text-slate-400 font-medium">
-              {formatDistance(station.dist)} entfernt
+            <span className="text-xs text-zinc-400 font-medium tabular-nums">
+              {formatDistance(station.dist)}
             </span>
           </div>
 
           <h3
             onClick={() => onOpenDetails(station)}
-            className="text-lg sm:text-xl font-bold text-white hover:text-emerald-400 cursor-pointer transition-colors leading-tight line-clamp-1"
+            className="text-base sm:text-lg font-semibold text-zinc-100 hover:text-zinc-300 cursor-pointer transition-colors leading-snug line-clamp-1"
           >
             {station.name}
           </h3>
 
-          <div className="flex items-center gap-1.5 text-xs text-slate-400">
-            <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <div className="flex items-center gap-1.5 text-xs text-zinc-400">
+            <MapPin className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
             <span className="truncate">
               {station.street} {station.houseNumber || ""}, {station.postCode || ""} {station.place}
             </span>
           </div>
 
           {/* Secondary Fuel Prices */}
-          <div className="flex items-center gap-2 pt-1 flex-wrap">
+          <div className="flex items-center gap-1.5 pt-1 flex-wrap">
             {secondaryPrices.map((sec) => {
               const secFormatted = formatFuelPrice(sec.price);
               return (
                 <div
                   key={sec.type}
-                  className="px-2 py-0.5 rounded-md bg-slate-800/80 border border-slate-700/60 text-[11px] flex items-center gap-1.5 text-slate-300"
+                  className="px-2 py-0.5 rounded bg-zinc-950 border border-zinc-800/80 text-[11px] flex items-center gap-1 text-zinc-400 tabular-nums"
                 >
-                  <span className="text-slate-400">{sec.label}:</span>
+                  <span className="text-zinc-400">{sec.label}:</span>
                   {secFormatted ? (
-                    <span className="font-semibold text-slate-200">
+                    <span className="font-medium text-zinc-200">
                       {secFormatted.main}
-                      <sup className="text-[9px] -top-1 font-bold">{secFormatted.sup}</sup> €
+                      <sup className="text-[9px] -top-0.5">{secFormatted.sup}</sup> €
                     </span>
                   ) : (
-                    <span className="text-slate-400">—</span>
+                    <span className="text-zinc-400">—</span>
                   )}
                 </div>
               );
@@ -115,21 +108,21 @@ export const BestPriceHero: React.FC<BestPriceHeroProps> = ({
         </div>
 
         {/* Right Side: Big Price & Action Buttons */}
-        <div className="md:col-span-5 flex flex-col sm:items-end justify-center border-t md:border-t-0 border-slate-800/80 pt-3 md:pt-0">
+        <div className="md:col-span-5 flex flex-col sm:items-end justify-center border-t md:border-t-0 border-zinc-800/80 pt-3 md:pt-0">
           <div className="text-left sm:text-right">
-            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold block">
-              {fuelType === "diesel" ? "Diesel" : fuelType === "e5" ? "Super E5" : "Super E10"} Bestpreis
+            <span className="text-[11px] text-zinc-400 block font-medium">
+              {fuelType === "diesel" ? "Diesel" : fuelType === "e5" ? "Super E5" : "Super E10"}
             </span>
             {formattedPrice ? (
-              <div className="text-3xl sm:text-4xl font-black text-white tracking-tight flex items-baseline sm:justify-end gap-0.5">
-                <span className="text-emerald-400">{formattedPrice.main}</span>
-                <sup className="text-lg sm:text-xl text-emerald-400 font-bold -top-2">
+              <div className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight flex items-baseline sm:justify-end gap-0.5 tabular-nums">
+                <span className="text-emerald-400 font-bold">{formattedPrice.main}</span>
+                <sup className="text-lg font-bold text-emerald-400 -top-1.5">
                   {formattedPrice.sup}
                 </sup>
-                <span className="text-lg text-slate-300 font-semibold ml-1">€</span>
+                <span className="text-sm text-zinc-400 font-normal ml-0.5">€</span>
               </div>
             ) : (
-              <span className="text-xl text-slate-400 font-bold">K.A.</span>
+              <span className="text-xl text-zinc-400 font-medium">K.A.</span>
             )}
           </div>
 
@@ -139,17 +132,17 @@ export const BestPriceHero: React.FC<BestPriceHeroProps> = ({
               href={navUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-950/50 transition-all"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs transition-colors shadow-sm"
             >
               <Navigation className="w-3.5 h-3.5 fill-current" />
-              <span>Navigation starten</span>
+              <span>Route</span>
             </a>
 
             {onOpenAiDetour && (
               <button
                 onClick={onOpenAiDetour}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 hover:from-amber-500/30 hover:to-emerald-500/30 active:scale-95 text-amber-300 border border-amber-500/40 text-xs font-semibold shadow-sm transition-all"
-                title="KI-Umweg-Berater: Berechne, ob sich die Mehrkilometer finanziell lohnen"
+                className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/80 text-xs font-medium transition-colors"
+                title="KI-Check: Berechne, ob sich der Umweg finanziell lohnt"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                 <span>KI-Check</span>
@@ -158,11 +151,11 @@ export const BestPriceHero: React.FC<BestPriceHeroProps> = ({
 
             <button
               onClick={() => onOpenDetails(station)}
-              className="flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 text-xs font-semibold border border-slate-700 transition-all"
+              className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-300 border border-zinc-800 text-xs font-medium transition-colors"
               title="Details & Öffnungszeiten ansehen"
             >
               <span>Details</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
             </button>
           </div>
         </div>

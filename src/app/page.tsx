@@ -251,7 +251,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100">
       {/* Top Header */}
       <Header
         onRefresh={() => fetchStations(true)}
@@ -261,17 +261,17 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-5 sm:px-6 space-y-4">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-4 sm:px-6 space-y-3.5">
         {/* Error notification if any */}
         {errorMsg && (
-          <div className="bg-rose-950/60 border border-rose-800/80 rounded-2xl p-3.5 flex items-center justify-between gap-3 text-rose-300 text-xs">
+          <div className="bg-zinc-900 border border-red-900/60 rounded-xl p-3 flex items-center justify-between gap-3 text-red-300 text-xs">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
               <span>{errorMsg}</span>
             </div>
             <button
               onClick={() => fetchStations(true)}
-              className="px-2.5 py-1 rounded-lg bg-rose-900/60 hover:bg-rose-900 text-white font-medium shrink-0 flex items-center gap-1"
+              className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white font-medium shrink-0 flex items-center gap-1"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Erneut versuchen</span>
