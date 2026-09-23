@@ -80,12 +80,14 @@ export const StationDetailModal: React.FC<StationDetailModalProps> = ({
     `${station.brand || station.name}, ${station.place}`
   );
 
-  const fullAddress = `${station.street} ${station.houseNumber || ""}, ${station.postCode || ""} ${station.place}`;
+  const fullAddress = `${station.street || ""} ${station.houseNumber || ""}, ${station.postCode || ""} ${station.place || ""}`.trim();
 
   const handleCopyAddress = () => {
-    navigator.clipboard.writeText(fullAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(fullAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const fuels = [
@@ -228,14 +230,20 @@ export const StationDetailModal: React.FC<StationDetailModalProps> = ({
               </div>
             ) : detail?.openingTimes && detail.openingTimes.length > 0 ? (
               <div className="bg-slate-950/60 border border-slate-800 rounded-2xl divide-y divide-slate-800/80 overflow-hidden text-xs">
-                {detail.openingTimes.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center px-3.5 py-2 text-slate-300">
-                    <span className="font-medium text-slate-400">{item.text}</span>
-                    <span className="font-semibold text-slate-100">
-                      {item.from.substring(0, 5)} - {item.to.substring(0, 5)} Uhr
-                    </span>
-                  </div>
-                ))}
+                {detail.openingTimes.map((item, idx) => {
+                  const fromTime = item?.from ? String(item.from).slice(0, 5) : "";
+                  const toTime = item?.to ? String(item.to).slice(0, 5) : "";
+                  const timeText =
+                    fromTime && toTime
+                      ? `${fromTime} - ${toTime} Uhr`
+                      : item?.from || item?.to || "Geschlossen";
+                  return (
+                    <div key={idx} className="flex justify-between items-center px-3.5 py-2 text-slate-300">
+                      <span className="font-medium text-slate-400">{item?.text || "Öffnungszeit"}</span>
+                      <span className="font-semibold text-slate-100">{timeText}</span>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div className="p-3.5 rounded-2xl bg-slate-950/40 border border-slate-800 text-xs text-slate-400">
