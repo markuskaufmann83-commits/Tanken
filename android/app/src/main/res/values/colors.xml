@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#10B981</color>
+    <color name="primary_variant">#059669</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="background">#09090B</color>
+    <color name="surface">#18181B</color>
+    <color name="surface_border">#27272A</color>
+    <color name="on_surface">#F4F4F5</color>
+    <color name="on_surface_muted">#A1A1AA</color>
+    <color name="emerald">#10B981</color>
+    <color name="emerald_bg">#102B20</color>
+    <color name="rose">#F43F5E</color>
+</resources>

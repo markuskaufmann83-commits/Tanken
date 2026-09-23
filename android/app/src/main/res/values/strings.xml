@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">SpritRadar Auto</string>
+    <string name="car_app_service_name">SpritRadar Tankstellen</string>
+    <string name="main_title">SpritRadar für Android Auto</string>
+    <string name="main_subtitle">Finde die günstigsten Tankstellen direkt auf deinem Fahrzeugdisplay.</string>
+    <string name="status_card_title">Android Auto Status</string>
+    <string name="status_card_ready">Bereit für dein Fahrzeug. Verbinde dein Smartphone per USB oder Wireless mit Android Auto.</string>
+    <string name="permission_required">Standortberechtigung erforderlich</string>
+    <string name="permission_explanation">Um die günstigsten Tankstellen in deiner Umgebung anzuzeigen, benötigt die App Zugriff auf deinen genauen Standort.</string>
+    <string name="grant_permission">Berechtigung erteilen</string>
+    <string name="test_api_button">Azure-API Verbindung prüfen</string>
+    <string name="api_testing">Prüfe Verbindung zu Azure...</string>
+    <string name="api_success">Verbindung erfolgreich! %d Tankstellen geladen.</string>
+    <string name="api_error">Fehler bei der Verbindung zur Azure-API: %s</string>
+    <string name="fuel_diesel">Diesel</string>
+    <string name="fuel_e10">Super E10</string>
+    <string name="fuel_e5">Super E5</string>
+    <string name="action_refresh">Aktualisieren</string>
+    <string name="action_switch_fuel">Kraftstoffart ändern</string>
+    <string name="loading_stations">Tankstellen werden geladen...</string>
+    <string name="no_stations_found">Keine Tankstellen in der Nähe gefunden.</string>
+    <string name="location_error_title">Standort nicht verfügbar</string>
+    <string name="location_error_text">Bitte aktiviere die Standortdienste und erteile der App die Standortberechtigung auf deinem Smartphone.</string>
+    <string name="api_error_title">Fehler beim Laden</string>
+    <string name="api_error_text">Die Spritpreis-Daten konnten nicht vom Server abgerufen werden. Bitte versuche es erneut.</string>
+    <string name="status_open">Geöffnet</string>
+    <string name="status_closed">Geschlossen</string>
+</resources>
