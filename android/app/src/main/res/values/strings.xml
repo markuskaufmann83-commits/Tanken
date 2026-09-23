@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">SpritRadar Auto</string>
-    <string name="car_app_service_name">SpritRadar Tankstellen</string>
-    <string name="main_title">SpritRadar für Android Auto</string>
+    <string name="app_name">TankPilot</string>
+    <string name="car_app_service_name">TankPilot</string>
+    <string name="main_title">TankPilot für Android Auto</string>
     <string name="main_subtitle">Finde die günstigsten Tankstellen direkt auf deinem Fahrzeugdisplay.</string>
     <string name="status_card_title">Android Auto Status</string>
     <string name="status_card_ready">Bereit für dein Fahrzeug. Verbinde dein Smartphone per USB oder Wireless mit Android Auto.</string>

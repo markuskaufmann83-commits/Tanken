@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     const res = await fetch(nominatimUrl.toString(), {
       headers: {
-        "User-Agent": "SpritRadar-PWA/1.0 (info@spritradar.internal)",
+        "User-Agent": "TankPilot-PWA/1.0 (info@tankpilot.internal)",
         Accept: "application/json",
       },
       next: { revalidate: 3600 }, // Cache geocode results for 1 hour

@@ -121,7 +121,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching stations from Azure", e)
-                errorMessage = "Verbindung zum SpritRadar-Server fehlgeschlagen. Bitte Internetverbindung prüfen."
+                errorMessage = "Verbindung zum TankPilot-Server fehlgeschlagen. Bitte Internetverbindung prüfen."
                 isLoading = false
             } finally {
                 invalidate()
@@ -168,7 +168,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
         // Error state
         if (errorMessage != null) {
             return MessageTemplate.Builder(errorMessage!!)
-                .setTitle("SpritRadar")
+                .setTitle("TankPilot")
                 .addAction(
                     Action.Builder()
                         .setTitle("Erneut versuchen")
@@ -214,7 +214,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
         // Loading state
         if (isLoading) {
             return PlaceListMapTemplate.Builder()
-                .setTitle("SpritRadar • ${currentFuelType.displayName}")
+                .setTitle("TankPilot • ${currentFuelType.displayName}")
                 .setLoading(true)
                 .setActionStrip(actionStrip)
                 .setCurrentLocationEnabled(true)

@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-base font-semibold tracking-tight text-zinc-100 flex items-center gap-1">
-                Sprit<span className="text-zinc-400 font-normal">Radar</span>
+                Tank<span className="text-zinc-400 font-normal">Pilot</span>
               </h1>
               <span className="text-[10px] uppercase font-medium px-1.5 py-0.5 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
                 Live

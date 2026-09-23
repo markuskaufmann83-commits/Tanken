@@ -54,7 +54,7 @@ export const AttributionFooter: React.FC = () => {
         </div>
 
         <div className="pt-3 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-zinc-400">
-          <p>SpritRadar Deutschland • PWA</p>
+          <p>TankPilot Deutschland • PWA</p>
           <p>
             Verbindlich sind immer die Preise an der Zapfsäule.
           </p>

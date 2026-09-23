@@ -13,7 +13,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "SpritRadar Deutschland - Günstig Tanken & Preisvergleich PWA",
+  title: "TankPilot Deutschland - Günstig Tanken & Preisvergleich PWA",
   description: "Finde die günstigsten Spritpreise (Diesel, Super E5, Super E10) aller Tankstellen in deiner Umgebung in Echtzeit.",
   manifest: "/manifest.json",
   icons: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "SpritRadar",
+    title: "TankPilot",
   },
 };
 

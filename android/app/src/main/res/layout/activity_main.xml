@@ -34,13 +34,13 @@
                 android:orientation="vertical"
                 android:layout_marginStart="10dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="SpritRadar"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/on_surface" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TankPilot"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/on_surface" />
 
                 <TextView
                     android:id="@+id/tvLocationSub"

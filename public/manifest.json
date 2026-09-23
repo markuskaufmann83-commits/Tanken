@@ -1,6 +1,6 @@
 {
-  "name": "SpritRadar Deutschland - Spritpreise & Tankstellen",
-  "short_name": "SpritRadar",
+  "name": "TankPilot Deutschland - Spritpreise & Tankstellen",
+  "short_name": "TankPilot",
   "description": "Finde die günstigsten Tankstellen und Spritpreise (Diesel, E5, E10) in deiner Nähe in Echtzeit.",
   "start_url": "/",
   "display": "standalone",
