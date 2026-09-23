@@ -21,6 +21,7 @@ import de.spritradar.auto.data.api.ApiClient
 import de.spritradar.auto.data.model.FuelType
 import de.spritradar.auto.data.model.Station
 import de.spritradar.auto.databinding.ActivityMainBinding
+import de.spritradar.auto.ui.AiDetourBottomSheet
 import de.spritradar.auto.ui.adapter.StationAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -265,18 +266,41 @@ class MainActivity : AppCompatActivity() {
             it.isOpen && it.getPrice(selectedFuelType) != null
         }
 
+        // Find nearest open station
+        val nearestStation = cachedStations.filter { it.isOpen && it.dist != null }
+            .minByOrNull { it.dist ?: Double.MAX_VALUE }
+
         if (bestPriceStation != null) {
             binding.cardBestPrice.visibility = View.VISIBLE
             binding.tvHeroPrice.text = bestPriceStation.formatPrice(selectedFuelType)
             binding.tvHeroName.text = bestPriceStation.name
             binding.tvHeroAddress.text = "${bestPriceStation.getFullAddress()} • ${bestPriceStation.formatDistance()}"
             binding.btnHeroNavigate.setOnClickListener { navigateToStation(bestPriceStation) }
+
+            if (nearestStation != null) {
+                binding.btnHeroAiCheck.visibility = View.VISIBLE
+                binding.btnHeroAiCheck.setOnClickListener {
+                    openAiDetourSheet(bestPriceStation, nearestStation)
+                }
+            } else {
+                binding.btnHeroAiCheck.visibility = View.GONE
+            }
         } else {
             binding.cardBestPrice.visibility = View.GONE
         }
 
         binding.tvStationCount.text = "${sortedList.size} Tankstellen in deiner Umgebung"
         stationAdapter.updateData(sortedList, selectedFuelType)
+    }
+
+    private fun openAiDetourSheet(cheapest: Station, nearest: Station) {
+        val sheet = AiDetourBottomSheet.newInstance(
+            cheapest = cheapest,
+            nearest = nearest,
+            fuelType = selectedFuelType,
+            onNavigate = { station -> navigateToStation(station) }
+        )
+        sheet.show(supportFragmentManager, "AiDetourBottomSheet")
     }
 
     private fun navigateToStation(station: Station) {

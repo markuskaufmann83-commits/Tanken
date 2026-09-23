@@ -24,7 +24,7 @@
             <ImageView
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:src="@drawable/ic_fuel"
+                android:src="@drawable/ic_logo"
                 android:contentDescription="@string/app_name" />
 
             <LinearLayout
@@ -280,17 +280,44 @@
                                 android:layout_marginTop="2dp"
                                 android:layout_marginBottom="12dp" />
 
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnHeroNavigate"
+                            <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="42dp"
-                                android:text="Navigation starten"
-                                android:textSize="13sp"
-                                android:textStyle="bold"
-                                android:textAllCaps="false"
-                                app:cornerRadius="10dp"
-                                app:backgroundTint="@color/primary"
-                                android:textColor="@color/background" />
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:layout_marginTop="4dp">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnHeroAiCheck"
+                                    style="@style/Widget.Material3.Button.TonalButton"
+                                    android:layout_width="0dp"
+                                    android:layout_height="42dp"
+                                    android:layout_weight="1"
+                                    android:text="KI-Check"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold"
+                                    android:textAllCaps="false"
+                                    app:icon="@drawable/ic_sparkles"
+                                    app:iconSize="16dp"
+                                    app:iconTint="@null"
+                                    app:cornerRadius="10dp"
+                                    app:backgroundTint="@color/surface_border"
+                                    android:textColor="@color/on_surface"
+                                    android:layout_marginEnd="6dp" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnHeroNavigate"
+                                    android:layout_width="0dp"
+                                    android:layout_height="42dp"
+                                    android:layout_weight="1"
+                                    android:text="Navigation"
+                                    android:textSize="12sp"
+                                    android:textStyle="bold"
+                                    android:textAllCaps="false"
+                                    app:cornerRadius="10dp"
+                                    app:backgroundTint="@color/primary"
+                                    android:textColor="@color/background"
+                                    android:layout_marginStart="6dp" />
+                            </LinearLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 

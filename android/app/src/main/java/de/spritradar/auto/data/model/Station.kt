@@ -45,7 +45,7 @@ data class Station(
 
     @SerializedName("isOpen")
     val isOpen: Boolean = true
-) {
+) : java.io.Serializable {
     /**
      * Resolves the price for the requested fuel type
      */

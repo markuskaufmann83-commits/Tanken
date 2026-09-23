@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/surface"
+    android:paddingBottom="24dp">
+
+    <!-- Drag Handle Indicator -->
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/badge_background" />
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="12dp">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_sparkles"
+            android:contentDescription="KI" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="KI-Umweg-Berater"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/on_surface" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kosten-Nutzen-Rechnung für Mehrkilometer"
+                android:textSize="11sp"
+                android:textColor="@color/on_surface_muted" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/btnClose"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            app:tint="@color/on_surface_muted"
+            android:contentDescription="Schließen" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/surface_border" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="14dp">
+
+            <!-- Main Verdict Banner Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardVerdict"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="14dp"
+                app:strokeColor="@color/emerald"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:id="@+id/tvVerdictBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="KI-EMPFEHLUNG: UMWEG LOHNT SICH"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/emerald"
+                        android:background="@drawable/badge_background"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp" />
+
+                    <TextView
+                        android:id="@+id/tvVerdictTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Du sparst ca. 2,40 € netto"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/on_surface"
+                        android:layout_marginTop="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvVerdictDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Der Preisvorteil an der Zapfsäule übersteigt die Spritkosten für den Umweg deutlich."
+                        android:textSize="12sp"
+                        android:textColor="@color/on_surface_muted"
+                        android:lineSpacingExtra="2dp"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Direct Comparison: Nearest vs. Cheapest -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="14dp">
+
+                <!-- Nearest Station Column -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    app:cardBackgroundColor="@color/background"
+                    app:cardCornerRadius="12dp"
+                    app:strokeColor="@color/surface_border"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="NÄCHSTE STATION"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <TextView
+                            android:id="@+id/tvNearName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Shell"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:id="@+id/tvNearDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0,8 km"
+                            android:textSize="11sp"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <TextView
+                            android:id="@+id/tvNearPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1,75⁹ €"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Cheapest Station Column -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    app:cardBackgroundColor="@color/background"
+                    app:cardCornerRadius="12dp"
+                    app:strokeColor="@color/primary"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="GÜNSTIGSTE"
+                            android:textSize="9sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/emerald" />
+
+                        <TextView
+                            android:id="@+id/tvCheapName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Aral"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:layout_marginTop="2dp" />
+
+                        <TextView
+                            android:id="@+id/tvCheapDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3,2 km"
+                            android:textSize="11sp"
+                            android:textColor="@color/emerald" />
+
+                        <TextView
+                            android:id="@+id/tvCheapPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1,68⁹ €"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/emerald"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Vehicle Parameters Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fahrzeugdaten anpassen"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/on_surface" />
+
+                    <!-- Tank Volume Selector -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tankmenge:"
+                            android:textSize="11sp"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <TextView
+                            android:id="@+id/tvSelectedLiters"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="50 L"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:layout_marginStart="6dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="6dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTank30"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="32dp"
+                            android:layout_weight="1"
+                            android:text="30 L"
+                            android:textSize="11sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="0dp"
+                            android:layout_marginEnd="4dp"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTank45"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="32dp"
+                            android:layout_weight="1"
+                            android:text="45 L"
+                            android:textSize="11sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="0dp"
+                            android:layout_marginEnd="4dp"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTank55"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="32dp"
+                            android:layout_weight="1"
+                            android:text="55 L"
+                            android:textSize="11sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="0dp"
+                            android:layout_marginEnd="4dp"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTank70"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="32dp"
+                            android:layout_weight="1"
+                            android:text="70 L"
+                            android:textSize="11sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="0dp"
+                            app:cornerRadius="8dp" />
+                    </LinearLayout>
+
+                    <!-- Consumption Selector -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Verbrauch:"
+                            android:textSize="11sp"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <TextView
+                            android:id="@+id/tvSelectedConsumption"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="6,5 L / 100 km"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface"
+                            android:layout_marginStart="6dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="6dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCons50"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="32dp"
+                            android:layout_weight="1"
+                            android:text="Sparsam (5,0 L)"
+                            android:textSize="10sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="0dp"
+                            android:layout_marginEnd="4dp"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCons65"
+                            style="@style/Widget.Material3.Button.TonalButton"
+                            android:layout_width="0dp"
+                            android:layout_height="32dp"
+                            android:layout_weight="1"
+                            android:text="Normal (6,5 L)"
+                            android:textSize="10sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="0dp"
+                            android:layout_marginEnd="4dp"
+                            app:cornerRadius="8dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnCons85"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="32dp"
+                            android:layout_weight="1"
+                            android:text="SUV (8,5 L)"
+                            android:textSize="10sp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingHorizontal="0dp"
+                            app:cornerRadius="8dp" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Calculation Breakdown Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardBreakdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/background"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="@color/surface_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Mehrstrecke (Hin &amp; Zurück):"
+                            android:textSize="12sp"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <TextView
+                            android:id="@+id/tvBreakdownDistance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+4,8 km (ca. 8 Min)"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="6dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Preisvorteil Zapfsäule:"
+                            android:textSize="12sp"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <TextView
+                            android:id="@+id/tvBreakdownGross"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+3,50 €"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/emerald" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Spritkosten für Umweg:"
+                            android:textSize="12sp"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <TextView
+                            android:id="@+id/tvBreakdownDetour"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-1,10 €"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/rose" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/surface_border"
+                        android:layout_marginBottom="8dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Echter Reingewinn:"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface" />
+
+                        <TextView
+                            android:id="@+id/tvBreakdownNet"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+2,40 €"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/emerald" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Bottom Action: Start Navigation -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNavigateCheap"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:text="Navigation zur günstigsten Station"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                app:cornerRadius="10dp"
+                app:backgroundTint="@color/primary"
+                android:textColor="@color/background" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>

@@ -178,21 +178,38 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         }
 
-        // Action Strip with Refresh and Fuel Type Toggle
-        val actionStrip = ActionStrip.Builder()
+        // Action Strip with Fuel Type Toggle, KI-Check and Refresh
+        val actionStripBuilder = ActionStrip.Builder()
             .addAction(
                 Action.Builder()
                     .setTitle(currentFuelType.displayName)
                     .setOnClickListener { switchFuelType() }
                     .build()
             )
-            .addAction(
-                Action.Builder()
-                    .setTitle("Aktualisieren")
-                    .setOnClickListener { loadStations() }
-                    .build()
-            )
-            .build()
+
+        if (stations.isNotEmpty()) {
+            val cheapest = stations.first()
+            val nearest = stations.minByOrNull { it.dist ?: Double.MAX_VALUE }
+            if (nearest != null) {
+                actionStripBuilder.addAction(
+                    Action.Builder()
+                        .setTitle("KI-Check")
+                        .setOnClickListener {
+                            screenManager.push(AiDetourScreen(carContext, cheapest, nearest, currentFuelType))
+                        }
+                        .build()
+                )
+            }
+        }
+
+        actionStripBuilder.addAction(
+            Action.Builder()
+                .setTitle("Aktualisieren")
+                .setOnClickListener { loadStations() }
+                .build()
+        )
+
+        val actionStrip = actionStripBuilder.build()
 
         // Loading state
         if (isLoading) {
