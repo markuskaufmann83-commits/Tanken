@@ -1,66 +1,56 @@
-const CACHE_NAME = 'spritradar-v1';
-const STATIC_ASSETS = [
-  '/',
-  '/manifest.json',
-  '/icons/icon.svg',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg'
-];
+const CACHE_NAME = 'spritradar-v3';
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
-  );
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
+    // Delete all old or corrupted caches immediately
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
+        cacheNames.map((name) => {
+          if (name !== CACHE_NAME) {
+            return caches.delete(name);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip cross-origin or non-GET requests
+  // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // For API calls, do network-first
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(event.request).catch(() => {
-        return caches.match(event.request);
-      })
-    );
+  // Never cache HTML documents, Next.js dynamic chunks, or API requests
+  if (
+    event.request.mode === 'navigate' ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/_next/')
+  ) {
     return;
   }
 
-  // Stale-while-revalidate for static files
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          const responseToCache = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
+  // Only cache static icons and manifest
+  if (url.pathname.startsWith('/icons/') || url.pathname === '/manifest.json') {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        return networkResponse;
-      }).catch(() => cachedResponse);
-
-      return cachedResponse || fetchPromise;
-    })
-  );
+        return fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, clone);
+            });
+          }
+          return networkResponse;
+        }).catch(() => cachedResponse);
+      })
+    );
+  }
 });

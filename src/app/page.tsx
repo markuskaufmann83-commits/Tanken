@@ -183,14 +183,14 @@ export default function Home() {
 
         if (sortBy === "price") {
           // If a station has no price, sort it to the end
-          if (priceA === null && priceB === null) return a.dist - b.dist;
+          if (priceA === null && priceB === null) return (a.dist ?? 0) - (b.dist ?? 0);
           if (priceA === null) return 1;
           if (priceB === null) return -1;
           if (priceA !== priceB) return priceA - priceB;
-          return a.dist - b.dist;
+          return (a.dist ?? 0) - (b.dist ?? 0);
         } else {
           // Sort by distance
-          return a.dist - b.dist;
+          return (a.dist ?? 0) - (b.dist ?? 0);
         }
       });
   }, [stations, onlyOpen, selectedBrand, sortBy, fuelType]);
@@ -198,13 +198,13 @@ export default function Home() {
   // Find the cheapest open station with a valid price
   const cheapestOpenStation = useMemo(() => {
     const openWithPrice = stations.filter(
-      (s) => s.isOpen && getFuelPrice(s, fuelType) !== null
+      (s) => s && s.isOpen && typeof getFuelPrice(s, fuelType) === "number"
     );
     if (openWithPrice.length === 0) return null;
 
     return openWithPrice.reduce((cheapest, current) => {
-      const priceCurrent = getFuelPrice(current, fuelType)!;
-      const priceCheapest = getFuelPrice(cheapest, fuelType)!;
+      const priceCurrent = getFuelPrice(current, fuelType) ?? Infinity;
+      const priceCheapest = getFuelPrice(cheapest, fuelType) ?? Infinity;
       return priceCurrent < priceCheapest ? current : cheapest;
     }, openWithPrice[0]);
   }, [stations, fuelType]);

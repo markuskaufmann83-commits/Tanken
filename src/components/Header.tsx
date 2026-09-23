@@ -23,8 +23,10 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -103,8 +105,8 @@ export const Header: React.FC<HeaderProps> = ({
             <RefreshCw
               className={`w-3.5 h-3.5 text-emerald-400 ${isLoading ? "animate-spin" : ""}`}
             />
-            <span className="hidden xs:inline">
-              {isLoading ? "Lädt..." : lastUpdated ? formatLastUpdated(lastUpdated) : "Aktualisieren"}
+            <span className="hidden sm:inline">
+              {isLoading ? "Lädt..." : mounted && lastUpdated ? formatLastUpdated(lastUpdated) : "Aktualisieren"}
             </span>
           </button>
         </div>
