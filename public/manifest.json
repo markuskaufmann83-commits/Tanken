@@ -1,0 +1,29 @@
+{
+  "name": "SpritRadar Deutschland - Spritpreise & Tankstellen",
+  "short_name": "SpritRadar",
+  "description": "Finde die günstigsten Tankstellen und Spritpreise (Diesel, E5, E10) in deiner Nähe in Echtzeit.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#059669",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
