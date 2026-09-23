@@ -58,8 +58,16 @@ export const LocationBar: React.FC<LocationBarProps> = ({
     try {
       const res = await fetch(`/api/geocode?q=${encodeURIComponent(searchQuery.trim())}`);
       const data = await res.json();
-      if (data.ok && Array.isArray(data.results)) {
+      if (data.ok && Array.isArray(data.results) && data.results.length > 0) {
         setSuggestions(data.results);
+        if (e) {
+          // Select top match immediately on form submission (Enter key)
+          const first = data.results[0];
+          const label = first.city || first.displayName.split(",")[0];
+          onSelectCoords(first.lat, first.lng, label);
+          setSearchQuery("");
+          setShowDropdown(false);
+        }
       } else {
         setSuggestions([]);
       }
@@ -168,15 +176,22 @@ export const LocationBar: React.FC<LocationBarProps> = ({
       {/* Quick city presets */}
       <div className="flex items-center gap-1.5 flex-wrap text-xs">
         <span className="text-slate-400 font-medium mr-1 text-[11px]">Schnellauswahl:</span>
-        {POPULAR_CITIES.map((c) => (
-          <button
-            key={c.name}
-            onClick={() => onSelectCoords(c.lat, c.lng, c.name)}
-            className="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 transition-colors text-[11px]"
-          >
-            {c.name}
-          </button>
-        ))}
+        {POPULAR_CITIES.map((c) => {
+          const isActive = currentLocationName.includes(c.name);
+          return (
+            <button
+              key={c.name}
+              onClick={() => onSelectCoords(c.lat, c.lng, c.name)}
+              className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-medium ${
+                isActive
+                  ? "bg-emerald-600 text-white font-bold shadow-md shadow-emerald-950/40"
+                  : "bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60"
+              }`}
+            >
+              {c.name}
+            </button>
+          );
+        })}
       </div>
 
       {/* Radius Selection */}

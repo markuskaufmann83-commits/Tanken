@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Station, FuelType, SortOrder, TankerkoenigListResponse } from "@/types/tankerkoenig";
 import { Header } from "@/components/Header";
 import { LocationBar } from "@/components/LocationBar";
@@ -8,6 +8,7 @@ import { FilterBar } from "@/components/FilterBar";
 import { BestPriceHero } from "@/components/BestPriceHero";
 import { StationList } from "@/components/StationList";
 import { StationDetailModal } from "@/components/StationDetailModal";
+import { AiDetourModal } from "@/components/AiDetourModal";
 import { AttributionFooter } from "@/components/AttributionFooter";
 import { getCachedData, setCachedData, getFuelPrice } from "@/lib/fuelUtils";
 import { AlertCircle, RefreshCw } from "lucide-react";
@@ -37,10 +38,16 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [selectedStation, setSelectedStation] = useState<Station | null>(null);
+  const [showAiDetourModal, setShowAiDetourModal] = useState<boolean>(false);
+
+  // Guards against race conditions and late geolocation overwrite
+  const isManualSelectionRef = useRef<boolean>(false);
+  const requestIdRef = useRef<number>(0);
 
   // Fetch stations from /api/stations
   const fetchStations = useCallback(
     async (forceRefresh = false) => {
+      const currentRequestId = ++requestIdRef.current;
       setIsLoading(true);
       setErrorMsg(null);
 
@@ -49,6 +56,7 @@ export default function Home() {
       if (!forceRefresh) {
         const cached = getCachedData<TankerkoenigListResponse>(cacheKey);
         if (cached && cached.stations) {
+          if (currentRequestId !== requestIdRef.current) return;
           setStations(cached.stations);
           setIsDemo(cached.status === "demo" || !!cached.license?.includes("Demo"));
           setIsLoading(false);
@@ -73,6 +81,9 @@ export default function Home() {
 
         const data: TankerkoenigListResponse = await res.json();
 
+        // Check if another request was triggered while waiting
+        if (currentRequestId !== requestIdRef.current) return;
+
         if (data.ok && Array.isArray(data.stations)) {
           setStations(data.stations);
           setIsDemo(data.status === "demo" || data.status === "fallback");
@@ -82,16 +93,19 @@ export default function Home() {
           setErrorMsg(data.message || "Keine Daten empfangen");
         }
       } catch (err) {
+        if (currentRequestId !== requestIdRef.current) return;
         console.error("Fetch stations error:", err);
         setErrorMsg("Fehler beim Laden der Tankstellendaten. Bitte erneut versuchen.");
       } finally {
-        setIsLoading(false);
+        if (currentRequestId === requestIdRef.current) {
+          setIsLoading(false);
+        }
       }
     },
     [coords, radius]
   );
 
-  // HTML5 Geolocation
+  // HTML5 Geolocation explicitly requested by user
   const handleRequestGeolocation = useCallback(() => {
     if (!navigator.geolocation) {
       alert("Standorterkennung wird von deinem Browser nicht unterstützt.");
@@ -99,6 +113,8 @@ export default function Home() {
     }
 
     setIsLocating(true);
+    isManualSelectionRef.current = false;
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const newCoords = {
@@ -121,11 +137,12 @@ export default function Home() {
     );
   }, []);
 
-  // Request location once on initial mount
+  // Request location once on initial mount (only if user hasn't selected another city yet)
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
+          if (isManualSelectionRef.current) return; // Ignore if user already clicked a city!
           setCoords({
             lat: pos.coords.latitude,
             lng: pos.coords.longitude,
@@ -209,7 +226,20 @@ export default function Home() {
     }, openWithPrice[0]);
   }, [stations, fuelType]);
 
+  // Find the nearest open station with a valid price (for AI detour comparison)
+  const nearestOpenStation = useMemo(() => {
+    const openWithPrice = stations.filter(
+      (s) => s && s.isOpen && typeof getFuelPrice(s, fuelType) === "number"
+    );
+    if (openWithPrice.length === 0) return null;
+
+    return openWithPrice.reduce((nearest, current) => {
+      return (current.dist ?? 0) < (nearest.dist ?? 0) ? current : nearest;
+    }, openWithPrice[0]);
+  }, [stations, fuelType]);
+
   const handleSelectCoords = (lat: number, lng: number, name: string) => {
+    isManualSelectionRef.current = true;
     setCoords({ lat, lng });
     setLocationName(name);
   };
@@ -279,6 +309,7 @@ export default function Home() {
             station={cheapestOpenStation}
             fuelType={fuelType}
             onOpenDetails={setSelectedStation}
+            onOpenAiDetour={() => setShowAiDetourModal(true)}
           />
         )}
 
@@ -293,12 +324,23 @@ export default function Home() {
         />
       </main>
 
-      {/* Detail Modal */}
+      {/* Station Detail Modal */}
       {selectedStation && (
         <StationDetailModal
           station={selectedStation}
           selectedFuelType={fuelType}
           onClose={() => setSelectedStation(null)}
+        />
+      )}
+
+      {/* AI Detour Calculator Modal */}
+      {showAiDetourModal && cheapestOpenStation && nearestOpenStation && (
+        <AiDetourModal
+          cheapestStation={cheapestOpenStation}
+          nearestStation={nearestOpenStation}
+          fuelType={fuelType}
+          onClose={() => setShowAiDetourModal(false)}
+          onOpenDetails={setSelectedStation}
         />
       )}
 

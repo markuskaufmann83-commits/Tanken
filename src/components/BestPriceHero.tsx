@@ -15,12 +15,14 @@ interface BestPriceHeroProps {
   station: Station | null;
   fuelType: FuelType;
   onOpenDetails: (station: Station) => void;
+  onOpenAiDetour?: () => void;
 }
 
 export const BestPriceHero: React.FC<BestPriceHeroProps> = ({
   station,
   fuelType,
   onOpenDetails,
+  onOpenAiDetour,
 }) => {
   if (!station) return null;
 
@@ -142,6 +144,17 @@ export const BestPriceHero: React.FC<BestPriceHeroProps> = ({
               <Navigation className="w-3.5 h-3.5 fill-current" />
               <span>Navigation starten</span>
             </a>
+
+            {onOpenAiDetour && (
+              <button
+                onClick={onOpenAiDetour}
+                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 hover:from-amber-500/30 hover:to-emerald-500/30 active:scale-95 text-amber-300 border border-amber-500/40 text-xs font-semibold shadow-sm transition-all"
+                title="KI-Umweg-Berater: Berechne, ob sich die Mehrkilometer finanziell lohnen"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>KI-Check</span>
+              </button>
+            )}
 
             <button
               onClick={() => onOpenDetails(station)}
