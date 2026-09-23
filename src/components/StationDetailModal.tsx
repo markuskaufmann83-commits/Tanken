@@ -231,14 +231,17 @@ export const StationDetailModal: React.FC<StationDetailModalProps> = ({
             ) : detail?.openingTimes && detail.openingTimes.length > 0 ? (
               <div className="bg-slate-950/60 border border-slate-800 rounded-2xl divide-y divide-slate-800/80 overflow-hidden text-xs">
                 {detail.openingTimes.map((item, idx) => {
-                  const fromTime = item?.from ? String(item.from).slice(0, 5) : "";
-                  const toTime = item?.to ? String(item.to).slice(0, 5) : "";
+                  const startRaw = item?.start || item?.from;
+                  const endRaw = item?.end || item?.to;
+                  const fromTime = startRaw ? String(startRaw).slice(0, 5) : "";
+                  const toTime = endRaw ? String(endRaw).slice(0, 5) : "";
                   const timeText =
                     fromTime && toTime
                       ? `${fromTime} - ${toTime} Uhr`
-                      : item?.from || item?.to || "Geschlossen";
+                      : startRaw || endRaw || (item?.text?.toLowerCase().includes("geschlossen") ? "Geschlossen" : "Geöffnet");
+
                   return (
-                    <div key={idx} className="flex justify-between items-center px-3.5 py-2 text-slate-300">
+                    <div key={idx} className="flex justify-between items-center px-3.5 py-2.5 text-slate-300">
                       <span className="font-medium text-slate-400">{item?.text || "Öffnungszeit"}</span>
                       <span className="font-semibold text-slate-100">{timeText}</span>
                     </div>

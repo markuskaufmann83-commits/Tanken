@@ -30,8 +30,10 @@ export interface TankerkoenigListResponse {
 
 export interface OpeningTime {
   text: string;
-  from: string;
-  to: string;
+  start?: string;
+  end?: string;
+  from?: string;
+  to?: string;
 }
 
 export interface StationDetail {
