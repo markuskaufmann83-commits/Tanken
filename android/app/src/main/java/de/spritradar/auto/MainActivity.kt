@@ -1,25 +1,55 @@
 package de.spritradar.auto
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.material.button.MaterialButton
 import de.spritradar.auto.data.api.ApiClient
+import de.spritradar.auto.data.model.FuelType
+import de.spritradar.auto.data.model.Station
 import de.spritradar.auto.databinding.ActivityMainBinding
+import de.spritradar.auto.ui.adapter.StationAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 /**
- * Smartphone companion activity for permission configuration and backend connectivity testing.
+ * Native Smartphone Activity displaying live gas stations, real-time prices,
+ * fuel tabs, and one-tap navigation, while companion Android Auto service
+ * projects directly onto the vehicle head unit when connected.
  */
 class MainActivity : AppCompatActivity() {
 
+    companion object {
+        private const val DEFAULT_LAT = 52.5200 // Berlin Mitte fallback
+        private const val DEFAULT_LNG = 13.4050
+        private const val SEARCH_RADIUS_KM = 10
+    }
+
     private lateinit var binding: ActivityMainBinding
+    private lateinit var stationAdapter: StationAdapter
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    // Current State
+    private var selectedFuelType: FuelType = FuelType.E10
+    private var currentLat: Double = DEFAULT_LAT
+    private var currentLng: Double = DEFAULT_LNG
+    private var isUsingGpsLocation: Boolean = false
+    private var cachedStations: List<Station> = emptyList()
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -27,7 +57,14 @@ class MainActivity : AppCompatActivity() {
         val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
         val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
 
-        updatePermissionUi(fineGranted || coarseGranted)
+        if (fineGranted || coarseGranted) {
+            binding.cardPermission.visibility = View.GONE
+            loadStations()
+        } else {
+            binding.cardPermission.visibility = View.VISIBLE
+            // Still load with fallback coordinates so the user sees real station data
+            loadStations()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,100 +72,223 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupPermissions()
-        setupApiTester()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        setupRecyclerView()
+        setupFuelTabs()
+        setupListeners()
+        checkPermissionsAndLoad()
     }
 
-    override fun onResume() {
-        super.onResume()
-        checkCurrentPermissions()
+    private fun setupRecyclerView() {
+        stationAdapter = StationAdapter(
+            stations = emptyList(),
+            currentFuelType = selectedFuelType,
+            onNavigateClick = { station -> navigateToStation(station) }
+        )
+        binding.rvStations.layoutManager = LinearLayoutManager(this)
+        binding.rvStations.adapter = stationAdapter
     }
 
-    private fun setupPermissions() {
-        binding.btnGrantPermission.setOnClickListener {
-            permissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
+    private fun setupFuelTabs() {
+        binding.btnFuelE10.setOnClickListener { selectFuelType(FuelType.E10) }
+        binding.btnFuelDiesel.setOnClickListener { selectFuelType(FuelType.DIESEL) }
+        binding.btnFuelE5.setOnClickListener { selectFuelType(FuelType.E5) }
+        updateFuelTabStyles()
+    }
+
+    private fun setupListeners() {
+        binding.swipeRefresh.setOnRefreshListener {
+            loadStations()
         }
-        checkCurrentPermissions()
+
+        binding.btnRefresh.setOnClickListener {
+            loadStations()
+        }
+
+        binding.btnGrantPermission.setOnClickListener {
+            requestLocationPermissions()
+        }
     }
 
-    private fun checkCurrentPermissions() {
-        val fineGranted = ContextCompat.checkSelfPermission(
+    private fun checkPermissionsAndLoad() {
+        val hasFine = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        val coarseGranted = ContextCompat.checkSelfPermission(
+        val hasCoarse = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        updatePermissionUi(fineGranted || coarseGranted)
-    }
-
-    private fun updatePermissionUi(isGranted: Boolean) {
-        if (isGranted) {
-            binding.tvPermissionStatus.text = "✓ Standortberechtigung erteilt. Die App kann deinen aktuellen Standort auf dem Fahrzeugdisplay verwenden."
-            binding.tvPermissionStatus.setTextColor(ContextCompat.getColor(this, R.color.emerald))
-            binding.btnGrantPermission.visibility = View.GONE
+        if (hasFine || hasCoarse) {
+            binding.cardPermission.visibility = View.GONE
+            loadStations()
         } else {
-            binding.tvPermissionStatus.text = "Standortberechtigung fehlt. Bitte erteile die Berechtigung, damit Android Auto Tankstellen in deiner Nähe findet."
-            binding.tvPermissionStatus.setTextColor(ContextCompat.getColor(this, R.color.on_surface_muted))
-            binding.btnGrantPermission.visibility = View.VISIBLE
+            binding.cardPermission.visibility = View.VISIBLE
+            // Request permissions on first launch
+            requestLocationPermissions()
         }
     }
 
-    private fun setupApiTester() {
-        binding.btnTestApi.setOnClickListener {
-            testAzureConnection()
+    private fun requestLocationPermissions() {
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
+
+    private fun selectFuelType(fuelType: FuelType) {
+        if (selectedFuelType == fuelType) return
+        selectedFuelType = fuelType
+        updateFuelTabStyles()
+        renderStations()
+    }
+
+    private fun updateFuelTabStyles() {
+        val activeBg = ContextCompat.getColor(this, R.color.primary)
+        val activeText = ContextCompat.getColor(this, R.color.background)
+        val inactiveText = ContextCompat.getColor(this, R.color.on_surface_muted)
+        val strokeColor = ContextCompat.getColor(this, R.color.surface_border)
+        val strokeWidth = (1 * resources.displayMetrics.density).toInt()
+
+        val buttons = listOf(
+            binding.btnFuelE10 to FuelType.E10,
+            binding.btnFuelDiesel to FuelType.DIESEL,
+            binding.btnFuelE5 to FuelType.E5
+        )
+
+        for ((btn, fuel) in buttons) {
+            if (fuel == selectedFuelType) {
+                btn.backgroundTintList = ColorStateList.valueOf(activeBg)
+                btn.setTextColor(activeText)
+                btn.strokeColor = ColorStateList.valueOf(Color.TRANSPARENT)
+                btn.strokeWidth = 0
+            } else {
+                btn.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+                btn.setTextColor(inactiveText)
+                btn.strokeColor = ColorStateList.valueOf(strokeColor)
+                btn.strokeWidth = strokeWidth
+            }
         }
     }
 
-    private fun testAzureConnection() {
-        binding.pbApiLoading.visibility = View.VISIBLE
-        binding.btnTestApi.isEnabled = false
-        binding.tvApiStatus.text = getString(R.string.api_testing)
-        binding.tvApiStatus.setTextColor(ContextCompat.getColor(this, R.color.on_surface_muted))
-
-        val startTime = System.currentTimeMillis()
+    @SuppressLint("MissingPermission")
+    private fun loadStations() {
+        binding.tvError.visibility = View.GONE
+        if (!binding.swipeRefresh.isRefreshing) {
+            binding.pbLoading.visibility = View.VISIBLE
+        }
 
         lifecycleScope.launch {
+            // 1. Try to fetch GPS location
+            val hasFine = ContextCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            val hasCoarse = ContextCompat.checkSelfPermission(
+                this@MainActivity,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (hasFine || hasCoarse) {
+                try {
+                    val location = fusedLocationClient.lastLocation.await()
+                    if (location != null) {
+                        currentLat = location.latitude
+                        currentLng = location.longitude
+                        isUsingGpsLocation = true
+                    }
+                } catch (e: Exception) {
+                    // Fallback to previous/default coordinates
+                }
+            }
+
+            // Update subtitle indicator
+            if (isUsingGpsLocation) {
+                binding.tvLocationSub.text = "GPS aktiv • Umkreis ${SEARCH_RADIUS_KM} km"
+            } else {
+                binding.tvLocationSub.text = "Standard-Standort (Berlin) • Umkreis ${SEARCH_RADIUS_KM} km"
+            }
+
+            // 2. Fetch stations from Azure API
             try {
-                // Test with Berlin Mitte coordinates
                 val response = withContext(Dispatchers.IO) {
                     ApiClient.stationApiService.getStations(
-                        lat = 52.5200,
-                        lng = 13.4050,
-                        rad = 5,
+                        lat = currentLat,
+                        lng = currentLng,
+                        rad = SEARCH_RADIUS_KM,
                         sort = "dist",
                         type = "all"
                     )
                 }
 
-                val duration = System.currentTimeMillis() - startTime
-
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
-                    val count = body.stations?.size ?: 0
-                    val status = body.status ?: "ok"
-
-                    binding.tvApiStatus.text = "✓ Verbindung erfolgreich (${duration} ms)\nStatus: $status • $count Tankstellen empfangen.\nAzure Backend ist voll einsatzbereit für Android Auto!"
-                    binding.tvApiStatus.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.emerald))
+                    cachedStations = body.stations ?: emptyList()
+                    renderStations()
                 } else {
-                    binding.tvApiStatus.text = "Fehler bei der Anfrage: HTTP ${response.code()} (${response.message()})"
-                    binding.tvApiStatus.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.rose))
+                    binding.tvError.text = "Fehler bei der Serverabfrage (HTTP ${response.code()})"
+                    binding.tvError.visibility = View.VISIBLE
                 }
             } catch (e: Exception) {
-                binding.tvApiStatus.text = "Verbindungsfehler: ${e.localizedMessage ?: "Unbekannter Fehler"}\nBitte Internetverbindung prüfen."
-                binding.tvApiStatus.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.rose))
+                binding.tvError.text = "Verbindungsfehler: ${e.localizedMessage ?: "Keine Internetverbindung"}"
+                binding.tvError.visibility = View.VISIBLE
             } finally {
-                binding.pbApiLoading.visibility = View.GONE
-                binding.btnTestApi.isEnabled = true
+                binding.pbLoading.visibility = View.GONE
+                binding.swipeRefresh.isRefreshing = false
             }
+        }
+    }
+
+    private fun renderStations() {
+        if (cachedStations.isEmpty()) {
+            binding.cardBestPrice.visibility = View.GONE
+            binding.tvStationCount.text = "Keine Tankstellen gefunden"
+            stationAdapter.updateData(emptyList(), selectedFuelType)
+            return
+        }
+
+        // Sort stations: open stations with valid price first, sorted ascending by price
+        val sortedList = cachedStations.sortedWith(
+            compareBy<Station> { !it.isOpen }
+                .thenBy { it.getPrice(selectedFuelType) ?: Double.MAX_VALUE }
+                .thenBy { it.dist ?: Double.MAX_VALUE }
+        )
+
+        // Find cheapest open station for Hero Card
+        val bestPriceStation = sortedList.firstOrNull {
+            it.isOpen && it.getPrice(selectedFuelType) != null
+        }
+
+        if (bestPriceStation != null) {
+            binding.cardBestPrice.visibility = View.VISIBLE
+            binding.tvHeroPrice.text = bestPriceStation.formatPrice(selectedFuelType)
+            binding.tvHeroName.text = bestPriceStation.name
+            binding.tvHeroAddress.text = "${bestPriceStation.getFullAddress()} • ${bestPriceStation.formatDistance()}"
+            binding.btnHeroNavigate.setOnClickListener { navigateToStation(bestPriceStation) }
+        } else {
+            binding.cardBestPrice.visibility = View.GONE
+        }
+
+        binding.tvStationCount.text = "${sortedList.size} Tankstellen in deiner Umgebung"
+        stationAdapter.updateData(sortedList, selectedFuelType)
+    }
+
+    private fun navigateToStation(station: Station) {
+        val geoUri = Uri.parse("geo:${station.lat},${station.lng}?q=${station.lat},${station.lng}(${Uri.encode(station.name)})")
+        val mapIntent = Intent(Intent.ACTION_VIEW, geoUri)
+
+        try {
+            startActivity(mapIntent)
+        } catch (e: Exception) {
+            // Fallback to Google Maps Web URL
+            val webUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=${station.lat},${station.lng}")
+            startActivity(Intent(Intent.ACTION_VIEW, webUri))
         }
     }
 }

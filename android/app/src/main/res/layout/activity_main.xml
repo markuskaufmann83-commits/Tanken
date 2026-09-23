@@ -6,204 +6,339 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:orientation="vertical">
 
+        <!-- Top App Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp">
 
-            <!-- App Header -->
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:src="@drawable/ic_fuel"
+                android:contentDescription="@string/app_name" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SpritRadar"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/on_surface" />
+
+                <TextView
+                    android:id="@+id/tvLocationSub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Günstigste Tankstellen in deiner Nähe"
+                    android:textSize="11sp"
+                    android:textColor="@color/on_surface_muted" />
+            </LinearLayout>
+
+            <!-- Refresh button -->
+            <ImageButton
+                android:id="@+id/btnRefresh"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/badge_background"
+                android:src="@drawable/ic_refresh"
+                app:tint="@color/on_surface"
+                android:contentDescription="Refresh" />
+        </LinearLayout>
+
+        <!-- Android Auto Status Pill Banner -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/surface"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_car"
+                android:contentDescription="Car" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Android Auto aktiv: Im Fahrzeug anstecken für Display-Ansicht"
+                android:textSize="11sp"
+                android:textColor="@color/emerald"
+                android:layout_marginStart="6dp" />
+        </LinearLayout>
+
+        <!-- Permission Notice Card (hidden when granted) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardPermission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="12dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="12dp"
+            app:strokeColor="@color/surface_border"
+            app:strokeWidth="1dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="24dp">
+                android:orientation="vertical"
+                android:padding="12dp">
 
-                <ImageView
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/ic_fuel"
-                    android:contentDescription="@string/app_name" />
-
-                <LinearLayout
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:text="Standortberechtigung erforderlich"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/on_surface" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/app_name"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/on_surface" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Um Tankstellen in deiner Umgebung zu finden, erteile bitte die Standortberechtigung."
+                    android:textSize="11sp"
+                    android:textColor="@color/on_surface_muted"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="8dp" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Android Auto POI / Fueling Client"
-                        android:textSize="12sp"
-                        android:textColor="@color/on_surface_muted" />
-                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGrantPermission"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Berechtigung erteilen"
+                    android:textSize="12sp"
+                    android:textAllCaps="false"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="0dp"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/primary"
+                    android:textColor="@color/background" />
             </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 1: Android Auto Vehicle Status -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="16dp"
+        <!-- Fuel Type Selector Tabs (Super E10, Diesel, Super E5) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="6dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFuelE10"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:text="Super E10"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textAllCaps="false"
+                android:layout_marginEnd="4dp"
+                app:cornerRadius="10dp"
+                app:backgroundTint="@color/primary"
+                android:textColor="@color/background" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFuelDiesel"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:text="Diesel"
+                android:textSize="12sp"
+                android:textAllCaps="false"
+                android:layout_marginHorizontal="2dp"
+                app:cornerRadius="10dp"
                 app:strokeColor="@color/surface_border"
-                app:strokeWidth="1dp">
+                android:textColor="@color/on_surface_muted" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnFuelE5"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:text="Super E5"
+                android:textSize="12sp"
+                android:textAllCaps="false"
+                android:layout_marginStart="4dp"
+                app:cornerRadius="10dp"
+                app:strokeColor="@color/surface_border"
+                android:textColor="@color/on_surface_muted" />
+        </LinearLayout>
+
+        <!-- SwipeRefresh & Main Content -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fillViewport="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="24dp">
 
-                    <LinearLayout
+                    <!-- Best Price Hero Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardBestPrice"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_car"
-                            android:contentDescription="Car" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/status_card_title"
-                            android:textSize="15sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/on_surface"
-                            android:layout_marginStart="8dp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/status_card_ready"
-                        android:textSize="13sp"
-                        android:textColor="@color/on_surface_muted"
-                        android:lineSpacingExtra="3dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 2: Location Permission -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="16dp"
-                app:strokeColor="@color/surface_border"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:id="@+id/tvPermissionTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="GPS-Standortberechtigung"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/on_surface"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/tvPermissionStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Wird geprüft..."
-                        android:textSize="13sp"
-                        android:textColor="@color/on_surface_muted"
-                        android:layout_marginBottom="12dp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnGrantPermission"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/grant_permission"
-                        android:textAllCaps="false"
-                        app:cornerRadius="10dp"
-                        app:backgroundTint="@color/primary"
-                        android:textColor="@color/background" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 3: Live Azure Backend Connection Test -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="16dp"
-                app:strokeColor="@color/surface_border"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Backend-Verbindung (Azure)"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/on_surface"
-                        android:layout_marginBottom="4dp" />
-
-                    <TextView
-                        android:id="@+id/tvApiStatus"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Noch nicht geprüft. Tippe auf den Button, um die Azure-API live zu testen."
-                        android:textSize="13sp"
-                        android:textColor="@color/on_surface_muted"
-                        android:layout_marginBottom="12dp" />
-
-                    <ProgressBar
-                        android:id="@+id/pbApiLoading"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_marginBottom="14dp"
                         android:visibility="gone"
+                        app:cardBackgroundColor="@color/surface"
+                        app:cardCornerRadius="16dp"
+                        app:strokeColor="@color/primary"
+                        app:strokeWidth="1dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="6dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="★ GÜNSTIGSTE TANKSTELLE"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/emerald"
+                                    android:background="@drawable/badge_background"
+                                    android:paddingHorizontal="6dp"
+                                    android:paddingVertical="2dp" />
+
+                                <View
+                                    android:layout_width="0dp"
+                                    android:layout_height="1dp"
+                                    android:layout_weight="1" />
+
+                                <TextView
+                                    android:id="@+id/tvHeroPrice"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="1,68⁹ €"
+                                    android:textSize="22sp"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/emerald" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/tvHeroName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Aral Tankstelle"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/on_surface" />
+
+                            <TextView
+                                android:id="@+id/tvHeroAddress"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Hauptstraße 42 • 1,2 km entfernt"
+                                android:textSize="12sp"
+                                android:textColor="@color/on_surface_muted"
+                                android:layout_marginTop="2dp"
+                                android:layout_marginBottom="12dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnHeroNavigate"
+                                android:layout_width="match_parent"
+                                android:layout_height="42dp"
+                                android:text="Navigation starten"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:textAllCaps="false"
+                                app:cornerRadius="10dp"
+                                app:backgroundTint="@color/primary"
+                                android:textColor="@color/background" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Station Count Header -->
+                    <TextView
+                        android:id="@+id/tvStationCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tankstellen in der Umgebung"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/on_surface_muted"
                         android:layout_marginBottom="8dp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnTestApi"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/test_api_button"
-                        android:textAllCaps="false"
-                        app:cornerRadius="10dp"
-                        app:strokeColor="@color/surface_border"
-                        android:textColor="@color/on_surface" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                    <!-- Loading Indicator -->
+                    <ProgressBar
+                        android:id="@+id/pbLoading"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginVertical="24dp"
+                        android:indeterminateTint="@color/primary"
+                        android:visibility="gone" />
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+                    <!-- Error Text -->
+                    <TextView
+                        android:id="@+id/tvError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Keine Tankstellen geladen."
+                        android:textColor="@color/rose"
+                        android:textSize="13sp"
+                        android:gravity="center"
+                        android:layout_marginVertical="16dp"
+                        android:visibility="gone" />
+
+                    <!-- Stations RecyclerView -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvStations"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        tools:listitem="@layout/item_station" />
+
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -59,6 +59,7 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // Google Play Services Location (FusedLocationProviderClient)
     implementation("com.google.android.gms:play-services-location:21.3.0")
