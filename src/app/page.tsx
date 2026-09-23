@@ -62,8 +62,8 @@ export default function Home() {
           lat: coords.lat.toString(),
           lng: coords.lng.toString(),
           rad: radius.toString(),
-          sort: sortBy,
-          type: fuelType,
+          sort: "dist",
+          type: "all",
         });
 
         const res = await fetch(`/api/stations?${params.toString()}`);
@@ -88,7 +88,7 @@ export default function Home() {
         setIsLoading(false);
       }
     },
-    [coords, radius, sortBy, fuelType]
+    [coords, radius]
   );
 
   // HTML5 Geolocation

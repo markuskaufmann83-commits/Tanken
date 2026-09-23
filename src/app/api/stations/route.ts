@@ -91,7 +91,12 @@ export async function GET(request: NextRequest) {
     tankerkoenigUrl.searchParams.set("lat", lat.toString());
     tankerkoenigUrl.searchParams.set("lng", lng.toString());
     tankerkoenigUrl.searchParams.set("rad", rad.toString());
-    tankerkoenigUrl.searchParams.set("sort", sort);
+    // If type is 'all', Tankerkönig API requires sort='dist'
+    if (type === "all") {
+      tankerkoenigUrl.searchParams.set("sort", "dist");
+    } else {
+      tankerkoenigUrl.searchParams.set("sort", sort);
+    }
     tankerkoenigUrl.searchParams.set("type", type);
     tankerkoenigUrl.searchParams.set("apikey", apiKey);
 
