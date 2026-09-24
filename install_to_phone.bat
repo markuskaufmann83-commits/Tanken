@@ -23,12 +23,22 @@ echo.
 echo Installiere TankPilot mit Play-Store-Herkuenftskennung (com.android.vending)...
 %ADB% install -i "com.android.vending" -r "android\app\build\outputs\apk\debug\app-debug.apk"
 
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo [HINWEIS] Normales Update fehlgeschlagen (z. B. Signaturkonflikt einer Vorversion).
+    echo Versuche Deinstallation der alten Version und Neuinstallation...
+    %ADB% uninstall de.spritradar.auto
+    echo.
+    %ADB% install -i "com.android.vending" "android\app\build\outputs\apk\debug\app-debug.apk"
+)
+
 if %ERRORLEVEL% equ 0 (
     echo.
     echo ======================================================================
     echo   ERFOLGREICH INSTALLIERT!
     echo ======================================================================
-    echo Die App wurde mit offizieller 'Google Play Store'-Herkunft registriert.
+    echo Die App wurde mit offizieller 'Google Play Store'-Herkunft registriert:
+    %ADB% shell pm list packages -i de.spritradar.auto
     echo.
     echo Naechste Schritte:
     echo 1. Oeffne auf dem Smartphone die Android Auto-Einstellungen.
