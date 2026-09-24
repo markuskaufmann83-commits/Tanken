@@ -20,9 +20,25 @@ android {
         buildConfigField("String", "AZURE_API_BASE_URL", "\"https://icy-stone-09b17d803.6.azurestaticapps.net/\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val keystoreFile = file("tankpilot-upload.jks")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "tankpilot2026"
+                keyAlias = System.getenv("KEY_ALIAS") ?: "tankpilot"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: "tankpilot2026"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            val releaseSigning = signingConfigs.getByName("release")
+            if (releaseSigning.storeFile != null && releaseSigning.storeFile!!.exists()) {
+                signingConfig = releaseSigning
+            }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
