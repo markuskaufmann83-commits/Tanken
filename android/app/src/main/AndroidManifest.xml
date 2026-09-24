@@ -12,11 +12,6 @@
     <!-- Android Auto MAP_TEMPLATES permission for PlaceListMapTemplate -->
     <uses-permission android:name="androidx.car.app.MAP_TEMPLATES" />
 
-    <!-- Android Auto Feature requirement -->
-    <uses-feature
-        android:name="android.hardware.type.automotive"
-        android:required="false" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -37,13 +32,14 @@
 
         <!-- Android Auto POI / Fueling Service -->
         <service
-            android:name=".service.FuelCarAppService"
+            android:name="de.spritradar.auto.service.FuelCarAppService"
             android:exported="true"
             android:label="@string/car_app_service_name"
             android:icon="@mipmap/ic_launcher">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />
                 <category android:name="androidx.car.app.category.POI" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
 
