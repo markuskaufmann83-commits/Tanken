@@ -568,18 +568,39 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Bottom Action: Start Navigation -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnNavigateCheap"
+            <!-- Bottom Actions: Navigation to Cheapest or Nearest -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:text="Navigation zur günstigsten Station"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:textAllCaps="false"
-                app:cornerRadius="10dp"
-                app:backgroundTint="@color/primary"
-                android:textColor="@color/background" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="4dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavigateCheap"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:text="Navigation zur günstigsten Station"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="@color/primary"
+                    android:textColor="@color/background" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNavigateNear"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:text="Navigation zur nächsten Station"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="@color/surface_border"
+                    android:textColor="@color/on_surface"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

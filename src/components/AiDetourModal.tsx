@@ -314,7 +314,7 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
         </div>
 
         {/* Footer Navigation */}
-        <div className="px-5 py-3 border-t border-zinc-800 bg-zinc-900/90 flex items-center justify-between gap-3">
+        <div className="px-5 py-3 border-t border-zinc-800 bg-zinc-900/90 flex flex-wrap items-center justify-between gap-2">
           <button
             onClick={onClose}
             className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium transition-colors"
@@ -322,19 +322,41 @@ export const AiDetourModal: React.FC<AiDetourModalProps> = ({
             Schließen
           </button>
 
-          <a
-            href={getNavigationUrl(
-              cheapestStation.lat,
-              cheapestStation.lng,
-              `${cheapestStation.brand || cheapestStation.name}, ${cheapestStation.place}`
+          <div className="flex items-center gap-2">
+            {!isSameStation && (
+              <a
+                href={getNavigationUrl(
+                  nearestStation.lat,
+                  nearestStation.lng,
+                  `${nearestStation.brand || nearestStation.name}, ${nearestStation.place}`
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium transition-colors"
+              >
+                <Navigation className="w-3.5 h-3.5 opacity-70" />
+                <span>Zur nächsten ({nearMeta.displayName})</span>
+              </a>
             )}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 font-semibold text-xs shadow-sm transition-colors"
-          >
-            <Navigation className="w-3.5 h-3.5 fill-current" />
-            <span>Navigation starten</span>
-          </a>
+
+            <a
+              href={getNavigationUrl(
+                cheapestStation.lat,
+                cheapestStation.lng,
+                `${cheapestStation.brand || cheapestStation.name}, ${cheapestStation.place}`
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs shadow-sm transition-colors"
+            >
+              <Navigation className="w-3.5 h-3.5 fill-current" />
+              <span>
+                {isSameStation
+                  ? "Navigation starten"
+                  : `Zur günstigsten (${cheapMeta.displayName})`}
+              </span>
+            </a>
+          </div>
         </div>
       </div>
     </div>

@@ -90,6 +90,11 @@ class AiDetourBottomSheet : BottomSheetDialogFragment() {
             cheapestStation?.let { onNavigateCallback?.invoke(it) }
             dismiss()
         }
+
+        binding.btnNavigateNear.setOnClickListener {
+            nearestStation?.let { onNavigateCallback?.invoke(it) }
+            dismiss()
+        }
     }
 
     private fun setupStationCards() {
@@ -177,9 +182,11 @@ class AiDetourBottomSheet : BottomSheetDialogFragment() {
         binding.cardVerdict.strokeColor = tintColor
         binding.tvVerdictBadge.setTextColor(tintColor)
 
-        // Update Breakdown
+        // Update Breakdown & Navigation Buttons
         if (result.isSameStation) {
             binding.cardBreakdown.visibility = View.GONE
+            binding.btnNavigateNear.visibility = View.GONE
+            binding.btnNavigateCheap.text = "Zur Station (${cheap.getDisplayBrand()}) navigieren"
         } else {
             binding.cardBreakdown.visibility = View.VISIBLE
             binding.tvBreakdownDistance.text = "${result.formatExtraKm()} (ca. ${result.extraTimeMinutes} Min)"
@@ -187,6 +194,10 @@ class AiDetourBottomSheet : BottomSheetDialogFragment() {
             binding.tvBreakdownDetour.text = result.formatDetourCost()
             binding.tvBreakdownNet.text = result.formatNetSavings()
             binding.tvBreakdownNet.setTextColor(tintColor)
+
+            binding.btnNavigateNear.visibility = View.VISIBLE
+            binding.btnNavigateNear.text = "Zur nächsten Station (${near.getDisplayBrand()}) navigieren"
+            binding.btnNavigateCheap.text = "Zur günstigsten Station (${cheap.getDisplayBrand()}) navigieren"
         }
     }
 
