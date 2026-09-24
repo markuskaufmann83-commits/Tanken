@@ -110,6 +110,10 @@ class MainActivity : AppCompatActivity() {
         binding.btnGrantPermission.setOnClickListener {
             requestLocationPermissions()
         }
+
+        binding.layoutAndroidAutoBanner.setOnClickListener {
+            showAndroidAutoSetupDialog()
+        }
     }
 
     private fun checkPermissionsAndLoad() {
@@ -304,6 +308,33 @@ class MainActivity : AppCompatActivity() {
             onNavigate = { station -> navigateToStation(station) }
         )
         sheet.show(supportFragmentManager, "AiDetourBottomSheet")
+    }
+
+    private fun showAndroidAutoSetupDialog() {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle("Android Auto Einrichtung")
+            .setMessage(
+                "Damit direkt per APK installierte Apps auf dem Fahrzeugdisplay angezeigt werden, verlangt Google die Freigabe 'Unbekannte Quellen' in den Android Auto Einstellungen:\n\n" +
+                "1. Öffne die Einstellungen deines Telefons und suche nach 'Android Auto'.\n\n" +
+                "2. Scrolle ganz nach unten und tippe 10-mal schnell auf 'Version', um die Entwicklereinstellungen freizuschalten.\n\n" +
+                "3. Tippe oben rechts auf das 3-Punkte-Menü (⋮) -> 'Entwicklereinstellungen' und aktiviere 'Unbekannte Quellen'.\n\n" +
+                "4. Prüfe unter 'Launcher anpassen', dass TankPilot aktiviert ist.\n\n" +
+                "Danach erscheint TankPilot sofort im App-Menü deines Autos!"
+            )
+            .setPositiveButton("Zu den Einstellungen") { _, _ ->
+                try {
+                    val intent = Intent("com.google.android.gms.car.CAR_PREFS")
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    try {
+                        startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
+                    } catch (ex: Exception) {
+                        // Ignore
+                    }
+                }
+            }
+            .setNegativeButton("Verstanden", null)
+            .show()
     }
 
     private fun navigateToStation(station: Station) {

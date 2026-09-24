@@ -64,13 +64,15 @@
 
         <!-- Android Auto Status Pill Banner -->
         <LinearLayout
+            android:id="@+id/layoutAndroidAutoBanner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:background="@color/surface"
             android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="8dp"
+            android:foreground="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
@@ -79,12 +81,20 @@
                 android:contentDescription="Car" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Android Auto aktiv: Im Fahrzeug anstecken für Display-Ansicht"
+                android:layout_weight="1"
+                android:text="Android Auto bereit: Im Auto anstecken"
                 android:textSize="11sp"
                 android:textColor="@color/emerald"
                 android:layout_marginStart="6dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Setup-Hilfe ℹ"
+                android:textSize="11sp"
+                android:textColor="@color/on_surface_muted" />
         </LinearLayout>
 
         <!-- Permission Notice Card (hidden when granted) -->
