@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" width="100" height="70">
-  <rect width="100" height="70" rx="10" fill="#DD1D21"/>
-  <circle cx="50" cy="35" r="24" fill="#FFD100"/>
-  <path d="M50,15 C40,15 32,24 32,35 C32,45 38,53 45,55 L55,55 C62,53 68,45 68,35 C68,24 60,15 50,15 Z" fill="#FFD100" stroke="#DD1D21" stroke-width="2"/>
-  <line x1="50" y1="15" x2="50" y2="55" stroke="#DD1D21" stroke-width="2"/>
-  <line x1="40" y1="19" x2="47" y2="55" stroke="#DD1D21" stroke-width="1.8"/>
-  <line x1="60" y1="19" x2="53" y2="55" stroke="#DD1D21" stroke-width="1.8"/>
-  <line x1="33" y1="28" x2="45" y2="54" stroke="#DD1D21" stroke-width="1.8"/>
-  <line x1="67" y1="28" x2="55" y2="54" stroke="#DD1D21" stroke-width="1.8"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <rect width="120" height="80" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <path d="M60,11 C47,11 37,22 37,36 C37,47 44,55 53,57 L67,57 C76,55 83,47 83,36 C83,22 73,11 60,11 Z" fill="#FBCE07" stroke="#DD1D21" stroke-width="2.5"/>
+  <line x1="60" y1="11" x2="60" y2="57" stroke="#DD1D21" stroke-width="2.5"/>
+  <line x1="47" y1="16" x2="56" y2="57" stroke="#DD1D21" stroke-width="2.2"/>
+  <line x1="73" y1="16" x2="64" y2="57" stroke="#DD1D21" stroke-width="2.2"/>
+  <line x1="39" y1="27" x2="53" y2="56" stroke="#DD1D21" stroke-width="2.2"/>
+  <line x1="81" y1="27" x2="67" y2="56" stroke="#DD1D21" stroke-width="2.2"/>
+  <text x="60" y="73" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="12" font-weight="900" letter-spacing="1.5" fill="#DD1D21" text-anchor="middle">SHELL</text>
 </svg>

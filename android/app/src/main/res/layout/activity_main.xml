@@ -278,14 +278,24 @@
                                 android:gravity="center_vertical"
                                 android:layout_marginBottom="12dp">
 
-                                <ImageView
-                                    android:id="@+id/ivHeroBrandLogo"
-                                    android:layout_width="52dp"
-                                    android:layout_height="36dp"
-                                    android:src="@drawable/logo_brand_aral"
-                                    android:scaleType="fitCenter"
+                                <com.google.android.material.card.MaterialCardView
+                                    android:layout_width="56dp"
+                                    android:layout_height="40dp"
                                     android:layout_marginEnd="12dp"
-                                    android:contentDescription="Markenlogo" />
+                                    app:cardCornerRadius="10dp"
+                                    app:cardElevation="0dp"
+                                    app:strokeWidth="1dp"
+                                    app:strokeColor="@color/surface_border"
+                                    app:cardBackgroundColor="@color/white">
+
+                                    <ImageView
+                                        android:id="@+id/ivHeroBrandLogo"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:src="@drawable/logo_brand_aral"
+                                        android:scaleType="fitCenter"
+                                        android:contentDescription="Markenlogo" />
+                                </com.google.android.material.card.MaterialCardView>
 
                                 <LinearLayout
                                     android:layout_width="0dp"

@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 70" width="100" height="70">
-  <rect width="100" height="70" rx="10" fill="#FFFFFF"/>
-  <path d="M26,35 C26,23 37,16 50,16" fill="none" stroke="#E21836" stroke-width="6" stroke-linecap="round"/>
-  <path d="M50,16 C63,16 74,23 74,35" fill="none" stroke="#F39200" stroke-width="6" stroke-linecap="round"/>
-  <path d="M74,35 C74,47 63,54 50,54" fill="none" stroke="#0055A5" stroke-width="6" stroke-linecap="round"/>
-  <path d="M50,54 C37,54 26,47 26,35" fill="none" stroke="#009640" stroke-width="6" stroke-linecap="round"/>
-  <text x="50" y="65" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#18181B" text-anchor="middle">TOTAL</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <rect width="120" height="80" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <path d="M34,35 C34,22 45,15 60,15" fill="none" stroke="#ED1B24" stroke-width="6" stroke-linecap="round"/>
+  <path d="M60,15 C75,15 86,22 86,35" fill="none" stroke="#F7931E" stroke-width="6" stroke-linecap="round"/>
+  <path d="M86,35 C86,48 75,55 60,55" fill="none" stroke="#0072CE" stroke-width="6" stroke-linecap="round"/>
+  <path d="M60,55 C45,55 34,48 34,35" fill="none" stroke="#00A859" stroke-width="6" stroke-linecap="round"/>
+  <text x="60" y="70" font-family="-apple-system, BlinkMacSystemFont, Arial, sans-serif" font-size="10" font-weight="900" letter-spacing="0.5" fill="#18181B" text-anchor="middle">TotalEnergies</text>
 </svg>

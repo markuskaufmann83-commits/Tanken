@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <rect width="120" height="80" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <rect x="8" y="8" width="104" height="40" rx="8" fill="#002D72"/>
+  <polygon points="68,8 112,8 112,48 88,48" fill="#E30613"/>
+  <!-- Horse silhouette -->
+  <path d="M42,20 C44,17 48,16 52,19 C55,21 57,20 60,22 C57,25 54,24 51,27 C48,27 46,31 43,30 C41,27 41,23 42,20 Z M46,30 L45,39 L47,39 L49,31 M53,28 L54,39 L57,39 L56,28" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" fill="#FFFFFF"/>
+  <text x="60" y="68" font-family="-apple-system, BlinkMacSystemFont, Arial, sans-serif" font-size="13" font-weight="900" letter-spacing="0.5" fill="#002D72" text-anchor="middle">Westfalen</text>
+</svg>

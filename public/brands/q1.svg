@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <rect width="120" height="80" rx="14" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <circle cx="60" cy="40" r="28" fill="none" stroke="#E30613" stroke-width="4.5"/>
+  <text x="52" y="52" font-family="-apple-system, BlinkMacSystemFont, Arial Black, sans-serif" font-size="34" font-weight="900" fill="#E30613" text-anchor="middle">Q</text>
+  <text x="76" y="52" font-family="-apple-system, BlinkMacSystemFont, Arial Black, sans-serif" font-size="34" font-weight="900" fill="#E30613" text-anchor="middle">1</text>
+</svg>

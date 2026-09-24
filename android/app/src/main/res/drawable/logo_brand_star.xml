@@ -1,8 +1,17 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="50dp"
-    android:height="35dp"
-    android:viewportWidth="100"
-    android:viewportHeight="70">
-    <path android:fillColor="#E30613" android:pathData="M10,0 L90,0 A10,10 0 0,1 100,10 L100,60 A10,10 0 0,1 90,70 L10,70 A10,10 0 0,1 0,60 L0,10 A10,10 0 0,1 10,0 Z"/>
-    <path android:fillColor="#FFFFFF" android:pathData="M50,18 L55,31 L69,31 L58,40 L62,53 L50,44 L38,53 L42,40 L31,31 L45,31 Z"/>
+    android:width="60dp"
+    android:height="40dp"
+    android:viewportWidth="120"
+    android:viewportHeight="80">
+    <path android:fillColor="#E30613" android:strokeColor="#B91C1C" android:strokeWidth="1.5" android:pathData="M14,0 L106,0 A14,14 0 0,1 120,14 L120,66 A14,14 0 0,1 106,80 L14,80 A14,14 0 0,1 0,66 L0,14 A14,14 0 0,1 14,0 Z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M60,12 L65,26 L80,26 L68,35 L72,49 L60,40 L48,49 L52,35 L40,26 L55,26 Z"/>
+    <!-- star text -->
+    <!-- s -->
+    <path android:fillColor="#FFFFFF" android:pathData="M43,67 C42,67 41,66.6 40.5,66 L41.5,64.8 C42,65.3 42.6,65.8 43.2,65.8 C43.8,65.8 44.2,65.5 44.2,65 C44.2,64.2 40.5,64.4 40.5,62 C40.5,60.8 41.5,59.8 43,59.8 C44,59.8 44.8,60.2 45.4,60.8 L44.4,61.8 C44,61.4 43.5,61 43,61 C42.5,61 42,61.3 42,61.8 C42,62.5 45.7,62.2 45.7,64.8 C45.7,66.2 44.5,67 43,67 Z"/>
+    <!-- t -->
+    <path android:fillColor="#FFFFFF" android:pathData="M48,58 L50,58 L50,60 L52,60 L52,61.5 L50,61.5 L50,65.5 C50,66 50.3,66.2 50.8,66.2 C51.2,66.2 51.6,66 51.8,65.8 L52.2,67 C51.7,67.3 51,67.5 50.3,67.5 C49,67.5 48.2,66.7 48.2,65.2 L48.2,61.5 L47,61.5 L47,60 L48,60 Z"/>
+    <!-- a -->
+    <path android:fillColor="#FFFFFF" android:pathData="M59.5,60 L59.5,67 L57.8,67 L57.8,65.8 C57.2,66.6 56.2,67.2 55,67.2 C53.5,67.2 52.5,66.2 52.5,64.8 C52.5,63.2 53.8,62.2 57.5,62.2 L57.5,62 C57.5,61.2 56.8,60.8 55.8,60.8 C55,60.8 54.2,61.2 53.8,61.6 L53,60.5 C53.8,59.8 54.8,59.5 56,59.5 C58.2,59.5 59.5,60.6 59.5,62 Z M57.5,63.5 C55.5,63.5 54.3,64 54.3,64.8 C54.3,65.5 54.8,66 55.6,66 C56.8,66 57.5,65.2 57.5,64 Z"/>
+    <!-- r -->
+    <path android:fillColor="#FFFFFF" android:pathData="M62,60 L63.8,60 L63.8,61.5 C64.5,60.3 65.5,59.8 66.8,59.8 L66.8,61.8 C65.2,61.8 64,62.8 64,64.5 L64,67 L62,67 Z"/>
 </vector>

@@ -101,10 +101,19 @@ export function getBrandMeta(brandRaw: string | undefined, nameRaw: string | und
     return { displayName: "star", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "STAR", logoUrl: "/brands/star.svg" };
   }
   if (brand.includes("ENI") || brand.includes("AGIP")) {
-    return { displayName: "Eni / Agip", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "ENI", logoUrl: "/brands/generic.svg" };
+    return { displayName: "Eni / Agip", bgClass: "bg-yellow-500/15", textClass: "text-yellow-400", borderClass: "border-yellow-500/30", short: "ENI", logoUrl: "/brands/eni.svg" };
   }
   if (brand.includes("OMV")) {
-    return { displayName: "OMV", bgClass: "bg-cyan-500/15", textClass: "text-cyan-400", borderClass: "border-cyan-500/30", short: "OMV", logoUrl: "/brands/generic.svg" };
+    return { displayName: "OMV", bgClass: "bg-blue-600/15", textClass: "text-blue-400", borderClass: "border-blue-600/30", short: "OMV", logoUrl: "/brands/omv.svg" };
+  }
+  if (brand.includes("WESTFALEN")) {
+    return { displayName: "Westfalen", bgClass: "bg-blue-700/15", textClass: "text-blue-400", borderClass: "border-blue-700/30", short: "WEST", logoUrl: "/brands/westfalen.svg" };
+  }
+  if (brand.includes("BFT")) {
+    return { displayName: "bft", bgClass: "bg-amber-500/15", textClass: "text-amber-400", borderClass: "border-amber-500/30", short: "BFT", logoUrl: "/brands/bft.svg" };
+  }
+  if (brand.includes("Q1")) {
+    return { displayName: "Q1", bgClass: "bg-red-500/15", textClass: "text-red-400", borderClass: "border-red-500/30", short: "Q1", logoUrl: "/brands/q1.svg" };
   }
 
   // Fallback for independent / other stations

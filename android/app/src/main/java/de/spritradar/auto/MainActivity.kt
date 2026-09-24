@@ -276,8 +276,10 @@ class MainActivity : AppCompatActivity() {
 
         if (bestPriceStation != null) {
             binding.cardBestPrice.visibility = View.VISIBLE
-            binding.ivHeroBrandLogo.setImageResource(
-                de.spritradar.auto.ui.util.BrandLogoHelper.getBrandLogoResId(bestPriceStation.brand, bestPriceStation.name)
+            de.spritradar.auto.ui.util.BrandLogoHelper.loadBrandLogo(
+                binding.ivHeroBrandLogo,
+                bestPriceStation.brand,
+                bestPriceStation.name
             )
             binding.tvHeroPrice.text = bestPriceStation.formatPrice(selectedFuelType)
             binding.tvHeroName.text = bestPriceStation.name

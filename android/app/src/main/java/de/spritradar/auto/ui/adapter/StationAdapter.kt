@@ -46,8 +46,10 @@ class StationAdapter(
         ) {
             val context = binding.root.context
 
-            binding.ivBrandLogo.setImageResource(
-                de.spritradar.auto.ui.util.BrandLogoHelper.getBrandLogoResId(station.brand, station.name)
+            de.spritradar.auto.ui.util.BrandLogoHelper.loadBrandLogo(
+                binding.ivBrandLogo,
+                station.brand,
+                station.name
             )
             binding.tvName.text = station.name
             binding.tvDistance.text = station.formatDistance()

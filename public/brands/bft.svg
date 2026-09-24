@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <rect width="120" height="80" rx="14" fill="#004B93" stroke="#00356B" stroke-width="1.5"/>
+  <rect x="10" y="10" width="100" height="60" rx="10" fill="#FED100"/>
+  <text x="60" y="52" font-family="-apple-system, BlinkMacSystemFont, Arial Black, Impact, sans-serif" font-size="34" font-weight="900" font-style="italic" letter-spacing="1" fill="#004B93" text-anchor="middle">bft</text>
+  <text x="60" y="64" font-family="-apple-system, BlinkMacSystemFont, Arial, sans-serif" font-size="7" font-weight="bold" fill="#004B93" text-anchor="middle">TANKSTELLE</text>
+</svg>

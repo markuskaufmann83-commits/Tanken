@@ -56,7 +56,7 @@ export const StationCard: React.FC<StationCardProps> = ({
             <span
               className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold uppercase tracking-wide border ${brandMeta.bgClass} ${brandMeta.textClass} ${brandMeta.borderClass}`}
             >
-              <img src={brandMeta.logoUrl} alt={brandMeta.displayName} className="w-4 h-3.5 object-contain" />
+              <img src={brandMeta.logoUrl} alt={brandMeta.displayName} className="w-5 h-4 object-contain" />
               <span>{brandMeta.displayName}</span>
             </span>
 

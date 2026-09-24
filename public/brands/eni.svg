@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <rect width="120" height="80" rx="14" fill="#FFD200" stroke="#EAB308" stroke-width="1.5"/>
+  <!-- Six-legged dog silhouette -->
+  <path d="M42,22 C43,18 47,15 52,16 C57,17 56,22 61,22 C66,22 69,20 74,23 C76,24 77,26 77,28 C74,27 71,28 68,30 C64,32 58,32 53,30 L50,33 L45,33 L46,29 C44,30 42,30 40,29 C38,27 39,24 42,22 Z" fill="#18181B"/>
+  <!-- Flame from mouth -->
+  <path d="M75,22 C79,19 83,21 85,18 C83,23 80,24 76,25 Z" fill="#E30613"/>
+  <!-- Dog legs (six legs) -->
+  <path d="M45,32 L43,44 L46,44 L48,34 M49,33 L48,44 L51,44 L52,33 M54,32 L53,44 L56,44 L57,32 M63,32 L62,44 L65,44 L66,32 M68,31 L68,44 L71,44 L71,31 M73,29 L74,44 L77,44 L76,28" stroke="#18181B" stroke-width="2.2" stroke-linecap="round"/>
+  <text x="60" y="66" font-family="-apple-system, BlinkMacSystemFont, Arial, sans-serif" font-size="18" font-weight="900" letter-spacing="1" fill="#18181B" text-anchor="middle">eni</text>
+</svg>
