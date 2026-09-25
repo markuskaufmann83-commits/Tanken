@@ -6,8 +6,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +20,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.material.button.MaterialButton
 import de.spritradar.auto.data.api.ApiClient
 import de.spritradar.auto.data.model.FuelType
@@ -29,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Native Smartphone Activity displaying live gas stations, real-time prices,
@@ -38,6 +47,7 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity() {
 
     companion object {
+        private const val TAG = "MainActivity"
         private const val DEFAULT_LAT = 52.5200 // Berlin Mitte fallback
         private const val DEFAULT_LNG = 13.4050
         private const val SEARCH_RADIUS_KM = 10
@@ -54,6 +64,26 @@ class MainActivity : AppCompatActivity() {
     private var isUsingGpsLocation: Boolean = false
     private var cachedStations: List<Station> = emptyList()
 
+    private var isLocationTrackingActive: Boolean = false
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+            val loc = result.lastLocation ?: return
+            val distMoved = FloatArray(1)
+            Location.distanceBetween(currentLat, currentLng, loc.latitude, loc.longitude, distMoved)
+            val metersMoved = distMoved[0]
+
+            // If we didn't have GPS coordinates yet or moved more than 400m, refresh stations
+            if (!isUsingGpsLocation || metersMoved > 400f) {
+                Log.d(TAG, "Live GPS update received: ${loc.latitude}, ${loc.longitude} (moved ${metersMoved.toInt()}m)")
+                currentLat = loc.latitude
+                currentLng = loc.longitude
+                isUsingGpsLocation = true
+                loadStations()
+            }
+        }
+    }
+
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -62,10 +92,10 @@ class MainActivity : AppCompatActivity() {
 
         if (fineGranted || coarseGranted) {
             binding.cardPermission.visibility = View.GONE
+            startLocationUpdates()
             loadStations()
         } else {
             binding.cardPermission.visibility = View.VISIBLE
-            // Still load with fallback coordinates so the user sees real station data
             loadStations()
         }
     }
@@ -88,6 +118,54 @@ class MainActivity : AppCompatActivity() {
         setupFuelTabs()
         setupListeners()
         checkPermissionsAndLoad()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        startLocationUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopLocationUpdates()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun startLocationUpdates() {
+        val hasFine = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        val hasCoarse = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if ((hasFine || hasCoarse) && !isLocationTrackingActive) {
+            try {
+                val req = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10_000L)
+                    .setMinUpdateDistanceMeters(300f)
+                    .setMinUpdateIntervalMillis(5_000L)
+                    .build()
+                fusedLocationClient.requestLocationUpdates(req, locationCallback, Looper.getMainLooper())
+                isLocationTrackingActive = true
+                Log.d(TAG, "Live GPS tracking started in MainActivity")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to start live GPS tracking", e)
+            }
+        }
+    }
+
+    private fun stopLocationUpdates() {
+        if (isLocationTrackingActive) {
+            try {
+                fusedLocationClient.removeLocationUpdates(locationCallback)
+                isLocationTrackingActive = false
+                Log.d(TAG, "Live GPS tracking stopped in MainActivity")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to stop live GPS tracking", e)
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -148,10 +226,10 @@ class MainActivity : AppCompatActivity() {
 
         if (hasFine || hasCoarse) {
             binding.cardPermission.visibility = View.GONE
+            startLocationUpdates()
             loadStations()
         } else {
             binding.cardPermission.visibility = View.VISIBLE
-            // Request permissions on first launch
             requestLocationPermissions()
         }
     }
@@ -212,7 +290,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            // 1. Try to fetch GPS location
+            // 1. Fetch fresh GPS location from hardware sensors
             val hasFine = ContextCompat.checkSelfPermission(
                 this@MainActivity,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -225,22 +303,22 @@ class MainActivity : AppCompatActivity() {
 
             if (hasFine || hasCoarse) {
                 try {
-                    val location = fusedLocationClient.lastLocation.await()
-                    if (location != null) {
-                        currentLat = location.latitude
-                        currentLng = location.longitude
+                    val tokenSource = CancellationTokenSource()
+                    val freshLocation = withTimeoutOrNull(4000L) {
+                        fusedLocationClient.getCurrentLocation(
+                            Priority.PRIORITY_HIGH_ACCURACY,
+                            tokenSource.token
+                        ).await()
+                    } ?: fusedLocationClient.lastLocation.await()
+
+                    if (freshLocation != null) {
+                        currentLat = freshLocation.latitude
+                        currentLng = freshLocation.longitude
                         isUsingGpsLocation = true
                     }
                 } catch (e: Exception) {
-                    // Fallback to previous/default coordinates
+                    Log.w(TAG, "Failed to get fresh GPS location", e)
                 }
-            }
-
-            // Update subtitle indicator
-            if (isUsingGpsLocation) {
-                binding.tvLocationSub.text = "GPS aktiv • Umkreis ${SEARCH_RADIUS_KM} km"
-            } else {
-                binding.tvLocationSub.text = "Standard-Standort (Berlin) • Umkreis ${SEARCH_RADIUS_KM} km"
             }
 
             // 2. Fetch stations from Azure API
@@ -296,6 +374,14 @@ class MainActivity : AppCompatActivity() {
         // Find nearest open station
         val nearestStation = cachedStations.filter { it.isOpen && it.dist != null }
             .minByOrNull { it.dist ?: Double.MAX_VALUE }
+
+        // Update subtitle with detected town / live status
+        val detectedPlace = nearestStation?.place?.takeIf { it.isNotBlank() } ?: "Umgebung"
+        if (isUsingGpsLocation) {
+            binding.tvLocationSub.text = "$detectedPlace • Live-GPS aktiv • Umkreis ${SEARCH_RADIUS_KM} km"
+        } else {
+            binding.tvLocationSub.text = "Standard-Standort (Berlin) • Umkreis ${SEARCH_RADIUS_KM} km"
+        }
 
         if (bestPriceStation != null) {
             binding.cardBestPrice.visibility = View.VISIBLE
@@ -369,7 +455,6 @@ class MainActivity : AppCompatActivity() {
         try {
             startActivity(mapIntent)
         } catch (e: Exception) {
-            // Fallback to Google Maps Web URL
             val webUri = Uri.parse("https://www.google.com/maps/search/?api=1&query=${station.lat},${station.lng}")
             startActivity(Intent(Intent.ACTION_VIEW, webUri))
         }
