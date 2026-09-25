@@ -4,7 +4,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
@@ -12,6 +15,8 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarLocation
+import androidx.car.app.model.Distance
+import androidx.car.app.model.DistanceSpan
 import androidx.car.app.model.ItemList
 import androidx.car.app.model.MessageTemplate
 import androidx.car.app.model.Metadata
@@ -345,7 +350,6 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
 
         stations.forEachIndexed { index, station ->
             val priceFormatted = station.formatPrice(currentFuelType)
-            val distFormatted = station.formatDistance()
             val statusText = if (station.isOpen) "Geöffnet" else "Geschlossen"
             val isCheapest = index == 0
 
@@ -357,10 +361,35 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 .setMarker(marker)
                 .build()
 
+            // Calculate precise distance for Android Auto DistanceSpan (required for PlaceListMapTemplate)
+            val distKm = station.dist ?: run {
+                val results = FloatArray(1)
+                Location.distanceBetween(
+                    currentLat, currentLng,
+                    station.lat, station.lng,
+                    results
+                )
+                (results[0] / 1000.0)
+            }
+
+            val distance = if (distKm < 1.0) {
+                Distance.create((distKm * 1000.0).coerceAtLeast(10.0), Distance.UNIT_METERS)
+            } else {
+                Distance.create(distKm, Distance.UNIT_KILOMETERS)
+            }
+            val distanceSpan = DistanceSpan.create(distance)
+
+            // Android Auto replaces the span anchor " " with the localized distance badge
+            val firstLine = SpannableStringBuilder()
+            firstLine.append(" ", distanceSpan, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            firstLine.append("  •  $priceFormatted/L")
+
+            val secondLine = "${station.getFullAddress()} • $statusText"
+
             val row = Row.Builder()
                 .setTitle(station.name)
-                .addText("$priceFormatted/L  •  $distFormatted")
-                .addText(statusText)
+                .addText(firstLine)
+                .addText(secondLine)
                 .setMetadata(Metadata.Builder().setPlace(place).build())
                 .setOnClickListener { startNavigation(station) }
                 .build()
