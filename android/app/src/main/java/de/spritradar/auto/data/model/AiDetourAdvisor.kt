@@ -53,6 +53,10 @@ data class AiDetourResult(
  */
 object AiDetourAdvisor {
 
+    // Realistic road circuity factor in urban/suburban road networks:
+    // Driving distance on roads is on average ~35% longer than straight-line air distance
+    private const val ROAD_CIRCUITY_FACTOR = 1.35
+
     fun calculate(
         cheapestStation: Station,
         nearestStation: Station,
@@ -68,7 +72,8 @@ object AiDetourAdvisor {
 
         val dCheap = cheapestStation.dist ?: 0.0
         val dNear = nearestStation.dist ?: 0.0
-        val extraOneWayKm = max(0.0, dCheap - dNear)
+        // Convert straight-line API distance delta into realistic street road distance
+        val extraOneWayKm = max(0.0, dCheap - dNear) * ROAD_CIRCUITY_FACTOR
         val extraRoundTripKm = extraOneWayKm * 2.0
 
         val grossSavings = tankLiters * priceDiffPerLiter
