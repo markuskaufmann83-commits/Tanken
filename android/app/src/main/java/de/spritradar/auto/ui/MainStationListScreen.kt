@@ -21,6 +21,9 @@ import androidx.car.app.model.PlaceMarker
 import androidx.car.app.model.Row
 import androidx.car.app.model.Template
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.location.LocationServices
 import de.spritradar.auto.data.api.ApiClient
 import de.spritradar.auto.data.model.FuelType
@@ -33,8 +36,8 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 /**
- * Main Android Auto POI Screen presenting the cheapest fuel stations on a vehicle map.
- * Uses the official PlaceListMapTemplate for automotive interfaces.
+ * Main Android Auto POI Screen presenting nearby fuel stations on a vehicle map.
+ * Uses PlaceListMapTemplate for automotive interfaces with full defensive crash protection.
  */
 class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
 
@@ -48,18 +51,58 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val locationClient by lazy { LocationServices.getFusedLocationProviderClient(carContext) }
+    private val locationClient by lazy {
+        LocationServices.getFusedLocationProviderClient(carContext.applicationContext)
+    }
 
     // State
     private var currentFuelType: FuelType = FuelType.E10
     private var isLoading: Boolean = true
+    private var isPermissionBypassed: Boolean = false
     private var errorMessage: String? = null
     private var stations: List<Station> = emptyList()
     private var currentLat: Double = DEFAULT_LAT
     private var currentLng: Double = DEFAULT_LNG
 
     init {
-        loadStations()
+        // Safe lifecycle attachment: do NOT call invalidate() or network in init directly
+        lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onCreate(owner: LifecycleOwner) {
+                if (hasLocationPermission() || isPermissionBypassed) {
+                    loadStations()
+                } else {
+                    isLoading = false
+                    safeInvalidate()
+                }
+            }
+        })
+    }
+
+    private fun hasLocationPermission(): Boolean {
+        val hasFine = ContextCompat.checkSelfPermission(
+            carContext,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val hasCoarse = ContextCompat.checkSelfPermission(
+            carContext,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return hasFine || hasCoarse
+    }
+
+    /**
+     * Safely invalidates the screen only when the lifecycle state allows it.
+     */
+    private fun safeInvalidate() {
+        if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+            try {
+                invalidate()
+            } catch (e: Exception) {
+                Log.w(TAG, "Safe invalidate failed: ${e.message}")
+            }
+        }
     }
 
     /**
@@ -69,22 +112,12 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
     private fun loadStations() {
         isLoading = true
         errorMessage = null
-        invalidate()
+        safeInvalidate()
 
         scope.launch {
             try {
-                // 1. Resolve GPS Coordinates
-                val hasFineLoc = ContextCompat.checkSelfPermission(
-                    carContext,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-
-                val hasCoarseLoc = ContextCompat.checkSelfPermission(
-                    carContext,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-
-                if (hasFineLoc || hasCoarseLoc) {
+                // 1. Resolve GPS Coordinates if permission is granted
+                if (hasLocationPermission()) {
                     try {
                         val location = locationClient.lastLocation.await()
                         if (location != null) {
@@ -111,20 +144,19 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                     val body = response.body()!!
                     val rawStations = body.stations ?: emptyList()
 
-                    // Filter only open stations with valid price for current fuel type, sorted by price
                     stations = sortStationsByCurrentFuel(rawStations)
                     isLoading = false
                     errorMessage = null
                 } else {
-                    errorMessage = "Server antwortete mit Fehlercode ${response.code()}"
+                    errorMessage = "Server antwortete mit Fehler (${response.code()})"
                     isLoading = false
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching stations from Azure", e)
-                errorMessage = "Verbindung zum TankPilot-Server fehlgeschlagen. Bitte Internetverbindung prüfen."
+                errorMessage = "Verbindung fehlgeschlagen. Bitte Internet prüfen."
                 isLoading = false
             } finally {
-                invalidate()
+                safeInvalidate()
             }
         }
     }
@@ -145,7 +177,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
     private fun switchFuelType() {
         currentFuelType = currentFuelType.next()
         stations = sortStationsByCurrentFuel(stations)
-        invalidate()
+        safeInvalidate()
     }
 
     /**
@@ -153,22 +185,30 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
      */
     private fun startNavigation(station: Station) {
         val uri = Uri.parse("geo:${station.lat},${station.lng}?q=${station.lat},${station.lng}(${Uri.encode(station.name)})")
-        val intent = Intent(Intent.ACTION_VIEW, uri)
         try {
-            carContext.startCarApp(intent)
+            val navIntent = Intent(CarContext.ACTION_NAVIGATE, uri)
+            carContext.startCarApp(navIntent)
         } catch (e: Exception) {
-            Log.e(TAG, "Could not start car navigation app", e)
+            try {
+                val viewIntent = Intent(Intent.ACTION_VIEW, uri)
+                carContext.startCarApp(viewIntent)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Could not start car navigation app", ex)
+            }
         }
     }
 
     /**
-     * Builds and returns the Android Auto template.
+     * Top-level template builder wrapped in try-catch to guarantee the car host never crashes.
      */
     override fun onGetTemplate(): Template {
-        // Error state
-        if (errorMessage != null) {
-            return MessageTemplate.Builder(errorMessage!!)
+        return try {
+            buildTemplate()
+        } catch (t: Throwable) {
+            Log.e(TAG, "Fatal error building template in onGetTemplate", t)
+            MessageTemplate.Builder("Ein unerwartetes Problem ist aufgetreten: ${t.localizedMessage ?: t.javaClass.simpleName}")
                 .setTitle("TankPilot")
+                .setHeaderAction(Action.APP_ICON)
                 .addAction(
                     Action.Builder()
                         .setTitle("Erneut versuchen")
@@ -177,8 +217,70 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 )
                 .build()
         }
+    }
 
-        // Action Strip with Fuel Type Toggle, KI-Check and Refresh
+    private fun buildTemplate(): Template {
+        // 1. Permission request screen if not granted and not bypassed
+        if (!hasLocationPermission() && !isPermissionBypassed) {
+            return MessageTemplate.Builder("TankPilot benötigt deinen Standort, um die günstigsten Tankstellen in deiner Umgebung zu finden.\nBitte erteile die Standort-Berechtigung auf deinem Smartphone.")
+                .setTitle("Standort freigeben")
+                .setHeaderAction(Action.APP_ICON)
+                .addAction(
+                    Action.Builder()
+                        .setTitle("Standort anfragen")
+                        .setOnClickListener {
+                            try {
+                                carContext.requestPermissions(
+                                    listOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                ) { granted, _ ->
+                                    if (granted.isNotEmpty()) {
+                                        loadStations()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                Log.e(TAG, "requestPermissions failed", e)
+                                isPermissionBypassed = true
+                                loadStations()
+                            }
+                        }
+                        .build()
+                )
+                .addAction(
+                    Action.Builder()
+                        .setTitle("Ohne GPS fortfahren")
+                        .setOnClickListener {
+                            isPermissionBypassed = true
+                            loadStations()
+                        }
+                        .build()
+                )
+                .build()
+        }
+
+        // 2. Error state
+        if (errorMessage != null) {
+            return MessageTemplate.Builder(errorMessage!!)
+                .setTitle("TankPilot • Fehler")
+                .setHeaderAction(Action.APP_ICON)
+                .addAction(
+                    Action.Builder()
+                        .setTitle("Erneut versuchen")
+                        .setOnClickListener { loadStations() }
+                        .build()
+                )
+                .addAction(
+                    Action.Builder()
+                        .setTitle(currentFuelType.displayName)
+                        .setOnClickListener { switchFuelType() }
+                        .build()
+                )
+                .build()
+        }
+
+        // 3. Action Strip (strictly max 2 actions for PlaceListMapTemplate compliance)
         val actionStripBuilder = ActionStrip.Builder()
             .addAction(
                 Action.Builder()
@@ -199,29 +301,45 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                         }
                         .build()
                 )
+            } else {
+                actionStripBuilder.addAction(
+                    Action.Builder()
+                        .setTitle("Aktualisieren")
+                        .setOnClickListener { loadStations() }
+                        .build()
+                )
             }
+        } else {
+            actionStripBuilder.addAction(
+                Action.Builder()
+                    .setTitle("Aktualisieren")
+                    .setOnClickListener { loadStations() }
+                    .build()
+            )
         }
-
-        actionStripBuilder.addAction(
-            Action.Builder()
-                .setTitle("Aktualisieren")
-                .setOnClickListener { loadStations() }
-                .build()
-        )
 
         val actionStrip = actionStripBuilder.build()
 
-        // Loading state
+        // 4. Loading state
         if (isLoading) {
-            return PlaceListMapTemplate.Builder()
+            val loadingBuilder = PlaceListMapTemplate.Builder()
                 .setTitle("TankPilot • ${currentFuelType.displayName}")
+                .setHeaderAction(Action.APP_ICON)
                 .setLoading(true)
                 .setActionStrip(actionStrip)
-                .setCurrentLocationEnabled(true)
-                .build()
+
+            if (hasLocationPermission() && carContext.carAppApiLevel >= 2) {
+                try {
+                    loadingBuilder.setCurrentLocationEnabled(true)
+                } catch (e: Exception) {
+                    Log.w(TAG, "setCurrentLocationEnabled failed during loading", e)
+                }
+            }
+
+            return loadingBuilder.build()
         }
 
-        // Stations List
+        // 5. Stations List
         val listBuilder = ItemList.Builder()
             .setNoItemsMessage("Keine geöffneten Tankstellen für ${currentFuelType.displayName} gefunden.")
 
@@ -229,10 +347,8 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
             val priceFormatted = station.formatPrice(currentFuelType)
             val distFormatted = station.formatDistance()
             val statusText = if (station.isOpen) "Geöffnet" else "Geschlossen"
-
             val isCheapest = index == 0
 
-            // Marker on the vehicle map
             val marker = PlaceMarker.Builder()
                 .setColor(if (isCheapest) CarColor.GREEN else CarColor.DEFAULT)
                 .build()
@@ -252,11 +368,20 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
             listBuilder.addItem(row)
         }
 
-        return PlaceListMapTemplate.Builder()
+        val templateBuilder = PlaceListMapTemplate.Builder()
             .setTitle("Günstigste Tankstellen (${currentFuelType.displayName})")
+            .setHeaderAction(Action.APP_ICON)
             .setItemList(listBuilder.build())
             .setActionStrip(actionStrip)
-            .setCurrentLocationEnabled(true)
-            .build()
+
+        if (hasLocationPermission() && carContext.carAppApiLevel >= 2) {
+            try {
+                templateBuilder.setCurrentLocationEnabled(true)
+            } catch (e: Exception) {
+                Log.w(TAG, "setCurrentLocationEnabled failed", e)
+            }
+        }
+
+        return templateBuilder.build()
     }
 }

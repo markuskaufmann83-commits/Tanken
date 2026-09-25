@@ -2,10 +2,12 @@ package de.spritradar.auto.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
+import androidx.car.app.model.MessageTemplate
 import androidx.car.app.model.Pane
 import androidx.car.app.model.PaneTemplate
 import androidx.car.app.model.Row
@@ -16,7 +18,7 @@ import de.spritradar.auto.data.model.Station
 
 /**
  * Android Auto Screen providing the AI Detour Advisor on the vehicle head unit
- * via the officially approved PaneTemplate.
+ * via the officially approved PaneTemplate with defensive crash handling.
  */
 class AiDetourScreen(
     carContext: CarContext,
@@ -25,7 +27,29 @@ class AiDetourScreen(
     private val fuelType: FuelType
 ) : Screen(carContext) {
 
+    companion object {
+        private const val TAG = "AiDetourScreen"
+    }
+
     override fun onGetTemplate(): Template {
+        return try {
+            buildTemplate()
+        } catch (t: Throwable) {
+            Log.e(TAG, "Error generating AiDetourScreen template", t)
+            MessageTemplate.Builder("Der KI-Berater konnte nicht geladen werden: ${t.localizedMessage ?: t.javaClass.simpleName}")
+                .setTitle("KI-Umweg-Berater")
+                .setHeaderAction(Action.BACK)
+                .addAction(
+                    Action.Builder()
+                        .setTitle("Zurück")
+                        .setOnClickListener { screenManager.pop() }
+                        .build()
+                )
+                .build()
+        }
+    }
+
+    private fun buildTemplate(): Template {
         val result = AiDetourAdvisor.calculate(
             cheapestStation = cheapestStation,
             nearestStation = nearestStation,
@@ -79,7 +103,7 @@ class AiDetourScreen(
                 Action.Builder()
                     .setTitle("Zur Nächsten (${nearestStation.getDisplayBrand()})")
                     .setOnClickListener { startNavigation(nearestStation) }
-                    .build()
+                .build()
             )
         }
 
@@ -91,12 +115,16 @@ class AiDetourScreen(
 
     private fun startNavigation(station: Station) {
         val uri = Uri.parse("geo:${station.lat},${station.lng}?q=${station.lat},${station.lng}(${Uri.encode(station.name)})")
-        val intent = Intent(CarContext.ACTION_NAVIGATE, uri)
         try {
-            carContext.startCarApp(intent)
+            val navIntent = Intent(CarContext.ACTION_NAVIGATE, uri)
+            carContext.startCarApp(navIntent)
         } catch (e: Exception) {
-            val viewIntent = Intent(Intent.ACTION_VIEW, uri)
-            carContext.startCarApp(viewIntent)
+            try {
+                val viewIntent = Intent(Intent.ACTION_VIEW, uri)
+                carContext.startCarApp(viewIntent)
+            } catch (ex: Exception) {
+                Log.e(TAG, "Could not start car navigation app", ex)
+            }
         }
     }
 }
