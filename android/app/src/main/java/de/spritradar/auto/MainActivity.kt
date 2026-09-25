@@ -427,18 +427,16 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        // Hero Card Station: cheapest or nearest depending on selected sort mode
-        val heroStation = if (currentSortMode == SortMode.PRICE) {
-            sortedList.firstOrNull { it.isOpen && it.getPrice(selectedFuelType) != null }
-        } else {
-            sortedList.firstOrNull { it.isOpen && it.dist != null }
-        }
+        val cheapestStation = cachedStations
+            .filter { it.isOpen && it.getPrice(selectedFuelType) != null }
+            .minByOrNull { it.getPrice(selectedFuelType) ?: Double.MAX_VALUE }
 
-        val nearestStation = cachedStations.filter { it.isOpen && it.dist != null }
+        val nearestStation = cachedStations
+            .filter { it.isOpen && it.dist != null }
             .minByOrNull { it.dist ?: Double.MAX_VALUE }
 
-        val cheapestStation = cachedStations.filter { it.isOpen && it.getPrice(selectedFuelType) != null }
-            .minByOrNull { it.getPrice(selectedFuelType) ?: Double.MAX_VALUE }
+        // The framed recommendation always stays on the cheapest station for direct comparison
+        val heroStation = cheapestStation
 
         // Update subtitle with detected town / live status
         val detectedPlace = nearestStation?.place?.takeIf { it.isNotBlank() } ?: "Umgebung"
@@ -450,7 +448,7 @@ class MainActivity : AppCompatActivity() {
 
         if (heroStation != null) {
             binding.cardBestPrice.visibility = View.VISIBLE
-            binding.tvHeroBadge.text = if (currentSortMode == SortMode.PRICE) "★ GÜNSTIGSTE TANKSTELLE" else "📍 NÄCHSTE TANKSTELLE"
+            binding.tvHeroBadge.text = "★ GÜNSTIGSTE TANKSTELLE"
             de.spritradar.auto.ui.util.BrandLogoHelper.loadBrandLogo(
                 binding.ivHeroBrandLogo,
                 heroStation.brand,
@@ -461,10 +459,10 @@ class MainActivity : AppCompatActivity() {
             binding.tvHeroAddress.text = "${heroStation.getFullAddress()} • ${heroStation.formatDistance()}"
             binding.btnHeroNavigate.setOnClickListener { navigateToStation(heroStation) }
 
-            if (cheapestStation != null && nearestStation != null && cheapestStation.id != nearestStation.id) {
+            if (nearestStation != null && heroStation.id != nearestStation.id) {
                 binding.btnHeroAiCheck.visibility = View.VISIBLE
                 binding.btnHeroAiCheck.setOnClickListener {
-                    openAiDetourSheet(cheapestStation, nearestStation)
+                    openAiDetourSheet(heroStation, nearestStation)
                 }
             } else {
                 binding.btnHeroAiCheck.visibility = View.GONE
