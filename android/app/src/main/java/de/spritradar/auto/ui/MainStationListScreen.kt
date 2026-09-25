@@ -7,10 +7,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
+import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableString
 import android.util.Log
 import androidx.car.app.CarContext
+import androidx.car.app.CarToast
 import androidx.car.app.Screen
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
@@ -30,8 +32,14 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import de.spritradar.auto.data.api.ApiClient
+import de.spritradar.auto.data.model.AiDetourAdvisor
 import de.spritradar.auto.data.model.FuelType
 import de.spritradar.auto.data.model.Station
 import kotlinx.coroutines.CoroutineScope
@@ -40,10 +48,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Main Android Auto POI Screen presenting nearby fuel stations on a vehicle map.
- * Uses PlaceListMapTemplate for automotive interfaces with full defensive crash protection.
+ * Includes live vehicle location tracking while driving and explicit manual refresh.
  */
 class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
 
@@ -57,6 +66,9 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
         private const val DEFAULT_LNG = 13.4050
         private const val SEARCH_RADIUS_KM = 10
         private const val MAX_STATIONS_DISPLAYED = 12
+
+        // Re-query stations automatically when vehicle travels >= 2.0 km
+        private const val AUTO_REFRESH_DISTANCE_METERS = 2000f
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -86,17 +98,36 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
     private var stations: List<Station> = emptyList()
     private var currentLat: Double = DEFAULT_LAT
     private var currentLng: Double = DEFAULT_LNG
+    private var lastLoadedLat: Double = DEFAULT_LAT
+    private var lastLoadedLng: Double = DEFAULT_LNG
+
+    private var isLocationTrackingActive: Boolean = false
+
+    private val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(result: LocationResult) {
+            val loc = result.lastLocation ?: return
+            handleVehicleMovement(loc)
+        }
+    }
 
     init {
-        // Safe lifecycle attachment: do NOT call invalidate() or network in init directly
+        // Lifecycle-aware: starts tracking while driving, stops when stopped/destroyed
         lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onCreate(owner: LifecycleOwner) {
                 if (hasLocationPermission() || isPermissionBypassed) {
-                    loadStations()
+                    loadStations(showLoadingIndicator = true)
                 } else {
                     isLoading = false
                     safeInvalidate()
                 }
+            }
+
+            override fun onStart(owner: LifecycleOwner) {
+                startLocationTracking()
+            }
+
+            override fun onStop(owner: LifecycleOwner) {
+                stopLocationTracking()
             }
         })
     }
@@ -116,6 +147,63 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
     }
 
     /**
+     * Starts continuous GPS location updates to track movement while driving.
+     */
+    @SuppressLint("MissingPermission")
+    private fun startLocationTracking() {
+        if (!hasLocationPermission() || isLocationTrackingActive) return
+        try {
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 15_000L) // every 15s
+                .setMinUpdateDistanceMeters(500f) // at least 500m movement
+                .setMinUpdateIntervalMillis(10_000L)
+                .build()
+
+            locationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+            isLocationTrackingActive = true
+            Log.d(TAG, "Vehicle GPS live tracking started")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to start live GPS tracking", e)
+        }
+    }
+
+    /**
+     * Stops continuous GPS location updates when screen is not visible to conserve battery.
+     */
+    private fun stopLocationTracking() {
+        if (isLocationTrackingActive) {
+            try {
+                locationClient.removeLocationUpdates(locationCallback)
+                isLocationTrackingActive = false
+                Log.d(TAG, "Vehicle GPS live tracking stopped")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to stop live GPS tracking", e)
+            }
+        }
+    }
+
+    /**
+     * Checks if the vehicle has moved far enough to automatically reload stations.
+     */
+    private fun handleVehicleMovement(location: Location) {
+        val results = FloatArray(1)
+        Location.distanceBetween(lastLoadedLat, lastLoadedLng, location.latitude, location.longitude, results)
+        val metersMoved = results[0]
+
+        currentLat = location.latitude
+        currentLng = location.longitude
+
+        // Automatically reload stations if car has traveled at least 2 km
+        if (metersMoved >= AUTO_REFRESH_DISTANCE_METERS && !isLoading) {
+            Log.d(TAG, "Vehicle moved ${metersMoved.toInt()}m -> auto-refreshing stations for new position")
+            loadStations(showLoadingIndicator = false)
+        }
+    }
+
+    /**
      * Safely invalidates the screen only when the lifecycle state allows it.
      */
     private fun safeInvalidate() {
@@ -132,23 +220,34 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
      * Fetches current location and loads nearby stations from the Azure serverless backend.
      */
     @SuppressLint("MissingPermission")
-    private fun loadStations() {
-        isLoading = true
-        errorMessage = null
-        safeInvalidate()
+    private fun loadStations(showLoadingIndicator: Boolean = true) {
+        if (showLoadingIndicator) {
+            isLoading = true
+            errorMessage = null
+            safeInvalidate()
+        }
 
         scope.launch {
             try {
-                // 1. Resolve GPS Coordinates if permission is granted
+                // 1. Resolve fresh GPS Coordinates if permission is granted
                 if (hasLocationPermission()) {
                     try {
-                        val location = locationClient.lastLocation.await()
-                        if (location != null) {
-                            currentLat = location.latitude
-                            currentLng = location.longitude
+                        val tokenSource = CancellationTokenSource()
+                        val freshLocation = withTimeoutOrNull(4000L) {
+                            locationClient.getCurrentLocation(
+                                Priority.PRIORITY_HIGH_ACCURACY,
+                                tokenSource.token
+                            ).await()
+                        } ?: locationClient.lastLocation.await()
+
+                        if (freshLocation != null) {
+                            currentLat = freshLocation.latitude
+                            currentLng = freshLocation.longitude
+                            lastLoadedLat = freshLocation.latitude
+                            lastLoadedLng = freshLocation.longitude
                         }
                     } catch (e: Exception) {
-                        Log.w(TAG, "Could not obtain last known location, using default", e)
+                        Log.w(TAG, "Could not obtain fresh location, using last known or default", e)
                     }
                 }
 
@@ -236,7 +335,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 .addAction(
                     Action.Builder()
                         .setTitle("Erneut versuchen")
-                        .setOnClickListener { loadStations() }
+                        .setOnClickListener { loadStations(showLoadingIndicator = true) }
                         .build()
                 )
                 .build()
@@ -261,13 +360,14 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                                     )
                                 ) { granted, _ ->
                                     if (granted.isNotEmpty()) {
-                                        loadStations()
+                                        startLocationTracking()
+                                        loadStations(showLoadingIndicator = true)
                                     }
                                 }
                             } catch (e: Exception) {
                                 Log.e(TAG, "requestPermissions failed", e)
                                 isPermissionBypassed = true
-                                loadStations()
+                                loadStations(showLoadingIndicator = true)
                             }
                         }
                         .build()
@@ -277,7 +377,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                         .setTitle("Ohne GPS fortfahren")
                         .setOnClickListener {
                             isPermissionBypassed = true
-                            loadStations()
+                            loadStations(showLoadingIndicator = true)
                         }
                         .build()
                 )
@@ -292,7 +392,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 .addAction(
                     Action.Builder()
                         .setTitle("Erneut versuchen")
-                        .setOnClickListener { loadStations() }
+                        .setOnClickListener { loadStations(showLoadingIndicator = true) }
                         .build()
                 )
                 .addAction(
@@ -304,46 +404,30 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 .build()
         }
 
-        // 3. Action Strip (strictly max 2 actions for PlaceListMapTemplate compliance)
-        // Explicitly labeled "Sprit: [Sorte]" so the driver immediately knows what is selected and what clicking does
-        val actionStripBuilder = ActionStrip.Builder()
+        // 3. Action Strip (strictly max 2 actions for PlaceListMapTemplate compliance):
+        // Button 1: Spritart umschalten (z. B. "Sprit: Diesel")
+        // Button 2: Manueller Standort- und Daten-Refresh
+        val actionStrip = ActionStrip.Builder()
             .addAction(
                 Action.Builder()
                     .setTitle("Sprit: ${currentFuelType.displayName}")
                     .setOnClickListener { switchFuelType() }
                     .build()
             )
-
-        if (stations.isNotEmpty()) {
-            val cheapest = stations.first()
-            val nearest = stations.minByOrNull { it.dist ?: Double.MAX_VALUE }
-            if (nearest != null) {
-                actionStripBuilder.addAction(
-                    Action.Builder()
-                        .setTitle("KI-Check")
-                        .setOnClickListener {
-                            screenManager.push(AiDetourScreen(carContext, cheapest, nearest, currentFuelType))
-                        }
-                        .build()
-                )
-            } else {
-                actionStripBuilder.addAction(
-                    Action.Builder()
-                        .setTitle("Aktualisieren")
-                        .setOnClickListener { loadStations() }
-                        .build()
-                )
-            }
-        } else {
-            actionStripBuilder.addAction(
+            .addAction(
                 Action.Builder()
                     .setTitle("Aktualisieren")
-                    .setOnClickListener { loadStations() }
+                    .setOnClickListener {
+                        try {
+                            CarToast.makeText(carContext, "Standort wird aktualisiert...", CarToast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Toast display failed", e)
+                        }
+                        loadStations(showLoadingIndicator = true)
+                    }
                     .build()
             )
-        }
-
-        val actionStrip = actionStripBuilder.build()
+            .build()
 
         // 4. Loading state
         if (isLoading) {
@@ -367,6 +451,24 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
         // 5. Stations List
         val listBuilder = ItemList.Builder()
             .setNoItemsMessage("Keine geöffneten Tankstellen für ${currentFuelType.displayName} gefunden.")
+
+        // Prominente KI-Check Karte an Position 1, wenn ein lohnender Umweg existiert
+        if (stations.size >= 2) {
+            val cheapest = stations.first()
+            val nearest = stations.minByOrNull { it.dist ?: Double.MAX_VALUE }
+            if (nearest != null && cheapest.id != nearest.id) {
+                val result = AiDetourAdvisor.calculate(cheapest, nearest, currentFuelType)
+                val aiRow = Row.Builder()
+                    .setTitle("✨ KI-Check: ${result.badge}")
+                    .addText("Tippen für Ersparnis & Straßen-Kostenbilanz")
+                    .setBrowsable(true)
+                    .setOnClickListener {
+                        screenManager.push(AiDetourScreen(carContext, cheapest, nearest, currentFuelType))
+                    }
+                    .build()
+                listBuilder.addItem(aiRow)
+            }
+        }
 
         stations.forEachIndexed { index, station ->
             val priceFormatted = station.formatPrice(currentFuelType)
