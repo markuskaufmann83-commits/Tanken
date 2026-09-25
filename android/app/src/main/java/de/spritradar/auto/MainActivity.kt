@@ -39,10 +39,14 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
+enum class SortMode {
+    PRICE,
+    DISTANCE
+}
+
 /**
  * Native Smartphone Activity displaying live gas stations, real-time prices,
- * fuel tabs, and one-tap navigation, while companion Android Auto service
- * projects directly onto the vehicle head unit when connected.
+ * fuel tabs, distance/price sort toggle, and one-tap navigation.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
 
     // Current State
     private var selectedFuelType: FuelType = FuelType.E10
+    private var currentSortMode: SortMode = SortMode.PRICE
     private var currentLat: Double = DEFAULT_LAT
     private var currentLng: Double = DEFAULT_LNG
     private var isUsingGpsLocation: Boolean = false
@@ -116,6 +121,7 @@ class MainActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupFuelTabs()
+        setupSortToggle()
         setupListeners()
         checkPermissionsAndLoad()
     }
@@ -193,6 +199,53 @@ class MainActivity : AppCompatActivity() {
         binding.btnFuelDiesel.setOnClickListener { selectFuelType(FuelType.DIESEL) }
         binding.btnFuelE5.setOnClickListener { selectFuelType(FuelType.E5) }
         updateFuelTabStyles()
+    }
+
+    private fun setupSortToggle() {
+        val saved = getSharedPreferences("tankpilot_prefs", MODE_PRIVATE)
+            .getString("sort_mode", null)
+        if (saved != null) {
+            try {
+                currentSortMode = SortMode.valueOf(saved)
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+
+        binding.btnSortPrice.setOnClickListener { setSortMode(SortMode.PRICE) }
+        binding.btnSortDistance.setOnClickListener { setSortMode(SortMode.DISTANCE) }
+        updateSortToggleStyles()
+    }
+
+    private fun setSortMode(mode: SortMode) {
+        if (currentSortMode == mode) return
+        currentSortMode = mode
+        getSharedPreferences("tankpilot_prefs", MODE_PRIVATE)
+            .edit()
+            .putString("sort_mode", mode.name)
+            .apply()
+        updateSortToggleStyles()
+        renderStations()
+    }
+
+    private fun updateSortToggleStyles() {
+        val activeBg = ContextCompat.getColor(this, R.color.primary)
+        val activeText = ContextCompat.getColor(this, R.color.background)
+        val inactiveText = ContextCompat.getColor(this, R.color.on_surface_muted)
+
+        if (currentSortMode == SortMode.PRICE) {
+            binding.btnSortPrice.backgroundTintList = ColorStateList.valueOf(activeBg)
+            binding.btnSortPrice.setTextColor(activeText)
+
+            binding.btnSortDistance.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+            binding.btnSortDistance.setTextColor(inactiveText)
+        } else {
+            binding.btnSortPrice.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+            binding.btnSortPrice.setTextColor(inactiveText)
+
+            binding.btnSortDistance.backgroundTintList = ColorStateList.valueOf(activeBg)
+            binding.btnSortDistance.setTextColor(activeText)
+        }
     }
 
     private fun setupListeners() {
@@ -359,21 +412,33 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Sort stations: open stations with valid price first, sorted ascending by price
-        val sortedList = cachedStations.sortedWith(
-            compareBy<Station> { !it.isOpen }
-                .thenBy { it.getPrice(selectedFuelType) ?: Double.MAX_VALUE }
-                .thenBy { it.dist ?: Double.MAX_VALUE }
-        )
-
-        // Find cheapest open station for Hero Card
-        val bestPriceStation = sortedList.firstOrNull {
-            it.isOpen && it.getPrice(selectedFuelType) != null
+        // Sort stations according to user preference (PRICE or DISTANCE)
+        val sortedList = if (currentSortMode == SortMode.PRICE) {
+            cachedStations.sortedWith(
+                compareBy<Station> { !it.isOpen }
+                    .thenBy { it.getPrice(selectedFuelType) ?: Double.MAX_VALUE }
+                    .thenBy { it.dist ?: Double.MAX_VALUE }
+            )
+        } else {
+            cachedStations.sortedWith(
+                compareBy<Station> { !it.isOpen }
+                    .thenBy { it.dist ?: Double.MAX_VALUE }
+                    .thenBy { it.getPrice(selectedFuelType) ?: Double.MAX_VALUE }
+            )
         }
 
-        // Find nearest open station
+        // Hero Card Station: cheapest or nearest depending on selected sort mode
+        val heroStation = if (currentSortMode == SortMode.PRICE) {
+            sortedList.firstOrNull { it.isOpen && it.getPrice(selectedFuelType) != null }
+        } else {
+            sortedList.firstOrNull { it.isOpen && it.dist != null }
+        }
+
         val nearestStation = cachedStations.filter { it.isOpen && it.dist != null }
             .minByOrNull { it.dist ?: Double.MAX_VALUE }
+
+        val cheapestStation = cachedStations.filter { it.isOpen && it.getPrice(selectedFuelType) != null }
+            .minByOrNull { it.getPrice(selectedFuelType) ?: Double.MAX_VALUE }
 
         // Update subtitle with detected town / live status
         val detectedPlace = nearestStation?.place?.takeIf { it.isNotBlank() } ?: "Umgebung"
@@ -383,22 +448,23 @@ class MainActivity : AppCompatActivity() {
             binding.tvLocationSub.text = "Standard-Standort (Berlin) • Umkreis ${SEARCH_RADIUS_KM} km"
         }
 
-        if (bestPriceStation != null) {
+        if (heroStation != null) {
             binding.cardBestPrice.visibility = View.VISIBLE
+            binding.tvHeroBadge.text = if (currentSortMode == SortMode.PRICE) "★ GÜNSTIGSTE TANKSTELLE" else "📍 NÄCHSTE TANKSTELLE"
             de.spritradar.auto.ui.util.BrandLogoHelper.loadBrandLogo(
                 binding.ivHeroBrandLogo,
-                bestPriceStation.brand,
-                bestPriceStation.name
+                heroStation.brand,
+                heroStation.name
             )
-            binding.tvHeroPrice.text = bestPriceStation.formatPrice(selectedFuelType)
-            binding.tvHeroName.text = bestPriceStation.name
-            binding.tvHeroAddress.text = "${bestPriceStation.getFullAddress()} • ${bestPriceStation.formatDistance()}"
-            binding.btnHeroNavigate.setOnClickListener { navigateToStation(bestPriceStation) }
+            binding.tvHeroPrice.text = heroStation.formatPrice(selectedFuelType)
+            binding.tvHeroName.text = heroStation.name
+            binding.tvHeroAddress.text = "${heroStation.getFullAddress()} • ${heroStation.formatDistance()}"
+            binding.btnHeroNavigate.setOnClickListener { navigateToStation(heroStation) }
 
-            if (nearestStation != null) {
+            if (cheapestStation != null && nearestStation != null && cheapestStation.id != nearestStation.id) {
                 binding.btnHeroAiCheck.visibility = View.VISIBLE
                 binding.btnHeroAiCheck.setOnClickListener {
-                    openAiDetourSheet(bestPriceStation, nearestStation)
+                    openAiDetourSheet(cheapestStation, nearestStation)
                 }
             } else {
                 binding.btnHeroAiCheck.visibility = View.GONE
@@ -407,7 +473,7 @@ class MainActivity : AppCompatActivity() {
             binding.cardBestPrice.visibility = View.GONE
         }
 
-        binding.tvStationCount.text = "${sortedList.size} Tankstellen in deiner Umgebung"
+        binding.tvStationCount.text = "${sortedList.size} Tankstellen"
         stationAdapter.updateData(sortedList, selectedFuelType)
     }
 

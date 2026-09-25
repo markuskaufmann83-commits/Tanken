@@ -246,6 +246,7 @@
                                 android:layout_marginBottom="6dp">
 
                                 <TextView
+                                    android:id="@+id/tvHeroBadge"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="★ GÜNSTIGSTE TANKSTELLE"
@@ -364,16 +365,59 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Station Count Header -->
-                    <TextView
-                        android:id="@+id/tvStationCount"
-                        android:layout_width="wrap_content"
+                    <!-- Header with Station Count and Sort Filter Toggle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Tankstellen in der Umgebung"
-                        android:textSize="13sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/on_surface_muted"
-                        android:layout_marginBottom="8dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="10dp">
+
+                        <TextView
+                            android:id="@+id/tvStationCount"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Tankstellen in der Umgebung"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/on_surface_muted" />
+
+                        <!-- Sort Toggle: Günstigste vs. Nächste -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="32dp"
+                            android:orientation="horizontal"
+                            android:background="@drawable/badge_background"
+                            android:padding="2dp">
+
+                            <TextView
+                                android:id="@+id/btnSortPrice"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="Günstigste"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:gravity="center"
+                                android:paddingHorizontal="10dp"
+                                android:background="@drawable/badge_background"
+                                android:backgroundTint="@color/primary"
+                                android:textColor="@color/background" />
+
+                            <TextView
+                                android:id="@+id/btnSortDistance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:text="Nächste"
+                                android:textSize="11sp"
+                                android:textStyle="bold"
+                                android:gravity="center"
+                                android:paddingHorizontal="10dp"
+                                android:background="@drawable/badge_background"
+                                android:backgroundTint="@android:color/transparent"
+                                android:textColor="@color/on_surface_muted" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <!-- Loading Indicator -->
                     <ProgressBar
