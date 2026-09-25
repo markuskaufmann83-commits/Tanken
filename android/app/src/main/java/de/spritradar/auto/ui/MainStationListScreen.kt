@@ -2,12 +2,13 @@ package de.spritradar.auto.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.Uri
 import android.text.Spannable
-import android.text.SpannableStringBuilder
+import android.text.SpannableString
 import android.util.Log
 import androidx.car.app.CarContext
 import androidx.car.app.Screen
@@ -48,6 +49,9 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
 
     companion object {
         private const val TAG = "MainStationListScreen"
+        private const val PREFS_NAME = "tankpilot_prefs"
+        private const val PREF_KEY_FUEL = "car_fuel_type"
+
         // Fallback location: Berlin Mitte
         private const val DEFAULT_LAT = 52.5200
         private const val DEFAULT_LNG = 13.4050
@@ -60,11 +64,25 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
         LocationServices.getFusedLocationProviderClient(carContext.applicationContext)
     }
 
-    // State
-    private var currentFuelType: FuelType = FuelType.E10
+    private val prefs by lazy {
+        carContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    // State: load persisted fuel type or default to E10
+    private var currentFuelType: FuelType = run {
+        val saved = carContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(PREF_KEY_FUEL, FuelType.E10.name)
+        try {
+            FuelType.valueOf(saved ?: FuelType.E10.name)
+        } catch (e: Exception) {
+            FuelType.E10
+        }
+    }
+
     private var isLoading: Boolean = true
     private var isPermissionBypassed: Boolean = false
     private var errorMessage: String? = null
+    private var allRawStations: List<Station> = emptyList()
     private var stations: List<Station> = emptyList()
     private var currentLat: Double = DEFAULT_LAT
     private var currentLng: Double = DEFAULT_LNG
@@ -147,9 +165,9 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
 
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
-                    val rawStations = body.stations ?: emptyList()
+                    allRawStations = body.stations ?: emptyList()
 
-                    stations = sortStationsByCurrentFuel(rawStations)
+                    stations = sortStationsByCurrentFuel(allRawStations)
                     isLoading = false
                     errorMessage = null
                 } else {
@@ -177,11 +195,12 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
     }
 
     /**
-     * Switches the active fuel type and resorts stations.
+     * Switches the active fuel type, persists preference, and resorts stations.
      */
     private fun switchFuelType() {
         currentFuelType = currentFuelType.next()
-        stations = sortStationsByCurrentFuel(stations)
+        prefs.edit().putString(PREF_KEY_FUEL, currentFuelType.name).apply()
+        stations = sortStationsByCurrentFuel(allRawStations)
         safeInvalidate()
     }
 
@@ -278,7 +297,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
                 )
                 .addAction(
                     Action.Builder()
-                        .setTitle(currentFuelType.displayName)
+                        .setTitle("Sprit: ${currentFuelType.displayName}")
                         .setOnClickListener { switchFuelType() }
                         .build()
                 )
@@ -286,10 +305,11 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
         }
 
         // 3. Action Strip (strictly max 2 actions for PlaceListMapTemplate compliance)
+        // Explicitly labeled "Sprit: [Sorte]" so the driver immediately knows what is selected and what clicking does
         val actionStripBuilder = ActionStrip.Builder()
             .addAction(
                 Action.Builder()
-                    .setTitle(currentFuelType.displayName)
+                    .setTitle("Sprit: ${currentFuelType.displayName}")
                     .setOnClickListener { switchFuelType() }
                     .build()
             )
@@ -328,7 +348,7 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
         // 4. Loading state
         if (isLoading) {
             val loadingBuilder = PlaceListMapTemplate.Builder()
-                .setTitle("TankPilot • ${currentFuelType.displayName}")
+                .setTitle("${currentFuelType.displayName} • Günstigste")
                 .setHeaderAction(Action.APP_ICON)
                 .setLoading(true)
                 .setActionStrip(actionStrip)
@@ -379,16 +399,20 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
             }
             val distanceSpan = DistanceSpan.create(distance)
 
-            // Android Auto replaces the span anchor " " with the localized distance badge
-            val firstLine = SpannableStringBuilder()
-            firstLine.append(" ", distanceSpan, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-            firstLine.append("  •  $priceFormatted/L")
+            // Line 1: Dedicated distance span required by Android Auto PlaceListMapTemplate
+            val distanceSpanText = SpannableString(" ")
+            distanceSpanText.setSpan(distanceSpan, 0, 1, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
 
-            val secondLine = "${station.getFullAddress()} • $statusText"
+            // Line 2: Explicit price per liter and address
+            val addressPart = listOfNotNull(station.street, station.place).filter { it.isNotBlank() }.joinToString(", ")
+            val secondLine = "$priceFormatted/L  •  $addressPart  •  $statusText"
+
+            // Row Title: Prominent price + station brand/name (e.g. "1,62⁹ € • RLT Bielefeld")
+            val rowTitle = "$priceFormatted  •  ${station.getDisplayBrand()}"
 
             val row = Row.Builder()
-                .setTitle(station.name)
-                .addText(firstLine)
+                .setTitle(rowTitle)
+                .addText(distanceSpanText)
                 .addText(secondLine)
                 .setMetadata(Metadata.Builder().setPlace(place).build())
                 .setOnClickListener { startNavigation(station) }
@@ -397,8 +421,9 @@ class MainStationListScreen(carContext: CarContext) : Screen(carContext) {
             listBuilder.addItem(row)
         }
 
+        // Title is kept concise so it never truncates on vehicle screens (e.g. "Diesel • Günstigste")
         val templateBuilder = PlaceListMapTemplate.Builder()
-            .setTitle("Günstigste Tankstellen (${currentFuelType.displayName})")
+            .setTitle("${currentFuelType.displayName} • Günstigste")
             .setHeaderAction(Action.APP_ICON)
             .setItemList(listBuilder.build())
             .setActionStrip(actionStrip)

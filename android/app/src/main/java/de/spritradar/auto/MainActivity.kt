@@ -101,6 +101,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFuelTabs() {
+        val saved = getSharedPreferences("tankpilot_prefs", MODE_PRIVATE)
+            .getString("car_fuel_type", null)
+        if (saved != null) {
+            try {
+                selectedFuelType = FuelType.valueOf(saved)
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
+
         binding.btnFuelE10.setOnClickListener { selectFuelType(FuelType.E10) }
         binding.btnFuelDiesel.setOnClickListener { selectFuelType(FuelType.DIESEL) }
         binding.btnFuelE5.setOnClickListener { selectFuelType(FuelType.E5) }
@@ -158,6 +168,10 @@ class MainActivity : AppCompatActivity() {
     private fun selectFuelType(fuelType: FuelType) {
         if (selectedFuelType == fuelType) return
         selectedFuelType = fuelType
+        getSharedPreferences("tankpilot_prefs", MODE_PRIVATE)
+            .edit()
+            .putString("car_fuel_type", fuelType.name)
+            .apply()
         updateFuelTabStyles()
         renderStations()
     }
